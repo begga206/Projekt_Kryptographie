@@ -1,12 +1,15 @@
 /*
- * feal.c
+ * 	feal.c
  *
  *  Created on: 22.04.2016
- *      Author: Lukas
+ *  Author: Lukas
  */
 
 #include "feal.h"
 
+/**
+ * Bit rotation nach links um eine mitgegebene Anzahl
+ */
 uint8_t rotateLeft(uint8_t byte, uint8_t amountOfBits)
 {
 	if(amountOfBits > 8)
@@ -19,11 +22,17 @@ uint8_t rotateLeft(uint8_t byte, uint8_t amountOfBits)
 	return (byte + carryover);
 }
 
+/**
+ * Implementierung der S0 und S1 Funktion aus der Quelle
+ */
 uint8_t s(uint8_t x, uint8_t y, Index_t i)
 {
 	return rotateLeft((x+y+i)%256 , 2); // stimmt vllt nicht, da datentyp uint8_t
 }
 
+/**
+ * Implementierung der fK Funktion aus der Quelle
+ */
 uint32_t fK(uint32_t aWord, uint32_t bWord)
 {
 	uint8_t a[4] = {0};
@@ -45,7 +54,10 @@ uint32_t fK(uint32_t aWord, uint32_t bWord)
 	return c;
 }
 
-uint32_t f(uint32_t aWord, uint16_t b)
+/**
+ * Implementierung der f Funktion aus der Quelle
+ */
+uint32_t f(uint32_t aDWord, uint16_t b)
 {
 	uint8_t b1 = b >> 8;
 	uint8_t b2 = b;
@@ -53,7 +65,7 @@ uint32_t f(uint32_t aWord, uint16_t b)
 	uint8_t c0, c1, c2, c3, d1, d2;
 
 	// Split a to a0, a1, a2, a3
-	splitToBytes(aWord, a);
+	splitToBytes(aDWord, a);
 
 	d1 = a[0] ^ a[1] ^ b1;
 	d2 = a[2] ^ a[3] ^ b2;
@@ -65,30 +77,34 @@ uint32_t f(uint32_t aWord, uint16_t b)
 	return bytesToUint32(c0, c1, c2, c3);
 }
 
-void splitToBytes(uint32_t word, uint8_t *buf)
+/**
+ * Splittet ein 32 bit uint in 4 bytes auf
+ */
+void splitToBytes(uint32_t dWord, uint8_t *buf)
 {
 	for(int i = 0; i < 4; ++i)
 	{
-		buf[i] = word & 0x000000FF;
-		word = word >> 8;
+		buf[i] = dWord & 0x000000FF;
+		dWord = dWord >> 8;
 	}
 }
 
+/**
+ *
+ */
 uint32_t bytesToUint32(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3)
 {
-	uint32_t ret = b3;
-	ret = ret << 8;
-	ret = ret + b2;
-	ret = ret << 8;
-	ret = ret + b1;
-	ret = ret << 8;
-	ret = ret + b0;
-	return ret;
+	return (uint32_t)(((uint32_t)b0 << 24) +
+					  ((uint32_t)b2 << 16) +
+					  ((uint32_t)b1 << 8)  + b3);
 }
 
+/**
+ * Compute the 12 16bit subkeys with the help of the 64 bit key
+ */
 uint16_t *compSubKeys(uint64_t key)
 {
-	uint16_t *subkeys = malloc(12);
+	uint16_t *subkeys = malloc(12 * sizeof(uint16_t));
 
 	uint32_t keyR = key;
 	uint32_t keyL = key >> 32;
@@ -112,6 +128,9 @@ uint16_t *compSubKeys(uint64_t key)
 	return subkeys;
 }
 
+/**
+ * Kodieren eines 64 bit Plaintextblocks
+ */
 uint64_t encode(uint64_t p, uint16_t *k)
 {
 	uint32_t l[5];
@@ -150,6 +169,9 @@ uint64_t encode(uint64_t p, uint16_t *k)
 	return c;
 }
 
+/**
+ * Dekodieren eines 64 bit Chiffreblocks
+ */
 uint64_t decode(uint64_t c, uint16_t * k)
 {
 	uint32_t l[5];
@@ -177,7 +199,7 @@ uint64_t decode(uint64_t c, uint16_t * k)
 	for(int i = 4; i > 0; --i)
 	{
 		r[i-1] = l[i];
-		l[i-1] = r[i] ^ f(r[i-1], k[i-1]); // Inverse von f???
+		l[i-1] = r[i] ^ f(r[i-1], k[i-1]);
 	}
 
 	uint32_t pL = l[0] ^ k45;
