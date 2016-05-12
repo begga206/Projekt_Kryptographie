@@ -25,7 +25,7 @@ uint8_t rotateLeft(uint8_t byte, uint8_t amountOfBits)
 /**
  * Implementierung der S0 und S1 Funktion aus der Quelle
  */
-uint8_t s(uint8_t x, uint8_t y, Index_t i)
+uint8_t S(uint8_t x, uint8_t y, Index_t i)
 {
 	return rotateLeft((x+y+i)%256 , 2); // stimmt vllt nicht, da datentyp uint8_t
 }
@@ -45,10 +45,10 @@ uint32_t fK(uint32_t aWord, uint32_t bWord)
 
 	d1 = a[0] ^ a[1];
 	d2 = a[2] ^ a[3];
-	c1 = s(d1, d2 ^ b[0], ONE);
-	c2 = s(d2, c1 ^ b[1], ZERO);
-	c0 = s(a[0], c1 ^ b[2], ZERO);
-	c3 = s(a[3], c2 ^ b[3], ONE);
+	c1 = S(d1, d2 ^ b[0], ONE);
+	c2 = S(d2, c1 ^ b[1], ZERO);
+	c0 = S(a[0], c1 ^ b[2], ZERO);
+	c3 = S(a[3], c2 ^ b[3], ONE);
 
 	uint32_t c = bytesToUint32(c0, c1, c2, c3);
 	return c;
@@ -69,10 +69,10 @@ uint32_t f(uint32_t aDWord, uint16_t b)
 
 	d1 = a[0] ^ a[1] ^ b1;
 	d2 = a[2] ^ a[3] ^ b2;
-	c1 = s(d1, d2, ONE);
-	c2 = s(d2, c1, ZERO);
-	c0 = s(a[0], c1, ZERO);
-	c3 = s(a[3], c2, ONE);
+	c1 = S(d1, d2, ONE);
+	c2 = S(d2, c1, ZERO);
+	c0 = S(a[0], c1, ZERO);
+	c3 = S(a[3], c2, ONE);
 
 	return bytesToUint32(c0, c1, c2, c3);
 }

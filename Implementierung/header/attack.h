@@ -19,4 +19,9 @@ uint32_t O_R(uint32_t a);
 
 uint64_t *choosePlainTexts();
 
+int getSolutionsForX(uint32_t aDWord, uint32_t bDWord, uint32_t *solutions);
+
+int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord,
+			uint32_t dDWord, uint32_t eDWord, uint32_t * solutions);
+
 #endif /* HEADER_ATTACK_H_ */

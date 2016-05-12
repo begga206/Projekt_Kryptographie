@@ -15,7 +15,7 @@
 typedef enum {ZERO = 0, ONE = 1} Index_t;
 
 uint8_t rotateLeft(uint8_t byte, uint8_t amountOfBits);
-uint8_t s(uint8_t x, uint8_t y, Index_t i);
+uint8_t S(uint8_t x, uint8_t y, Index_t i);
 uint32_t fK(uint32_t aWord, uint32_t bWord);
 uint32_t f(uint32_t aWord, uint16_t b);
 void splitToBytes(uint32_t word, uint8_t *buf);
