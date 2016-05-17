@@ -7,13 +7,6 @@
 
 #include "attack.h"
 
-struct triplet{
-	uint32_t W;
-	uint32_t V0;
-	uint32_t U0;
-};
-
-
 /**
  * Hilfsfunktion G
  */
@@ -242,6 +235,7 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 			}
 		}
 	}
+	realloc(solutions, solutionCount);
 	return solutionCount;
 }
 
@@ -265,6 +259,7 @@ int getSolutionsFor5_9(uint32_t D0, uint32_t D3, uint32_t D4, uint32_t C0L, uint
 	// die alten Loesungen werden nicht mehr gebraucht.
 	free(solutions);
 	solutions = newSolutions;
+	realloc(solutions, newSolutionsCount);
 	return newSolutionsCount;
 }
 
@@ -346,6 +341,7 @@ int getTriplets(uint64_t *C, uint32_t *D, uint64_t *P, uint32_t *wSolutions,
 			}
 		}
 	}
+	realloc(triplets, tripletsCount);
 	return tripletsCount;
 }
 
@@ -374,7 +370,7 @@ int constrainXOuterBitsZero(uint8_t x, uint32_t *solutions, int solutionsCount)
 	return rtSolutionsCount;
 }
 
-void attack(uint64_t *P, uint64_t *C)
+uint32_t *attack(uint64_t *P, uint64_t *C)
 {
 	uint32_t Q[20] = {0};
 	uint32_t D[20] = {0};
@@ -426,10 +422,19 @@ void attack(uint64_t *P, uint64_t *C)
 	struct triplet *triplets = NULL;
 	int tripletCount = getTriplets(C, D, P, wSolutions, wSolutionCount, v0Solutions, v0SolutionCount, triplets);
 
-	// TODO: For each triplet solve for the key constants.
+
+	// For each triplet solve for the key constants.
+	uint32_t *constants = NULL;
+	constants = attack2(C, P, D, Q, triplets, tripletCount);
+
+
+	free(wSolutions);
+	free(v0Solutions);
+	free(triplets);
+	return constants;
 }
 
-void attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet *triplets, int tripletCount)
+uint32_t *attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet *triplets, int tripletCount)
 {
 	for(int i = 0; i < tripletCount; ++i)
 	{
@@ -453,11 +458,21 @@ void attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet 
 				if(doesStaisfy5_4((uint32_t)(C[13] >> 32), U13, (uint32_t)(P[13] >> 32), V12Solutions[j], D[13], triplets[i].W) ||
 						doesStaisfy5_4((uint32_t)(C[15] >> 32), U15, (uint32_t)(P[15] >> 32), V12Solutions[k], D[15], triplets[i].W))
 				{
+					uint32_t *constants = calculateKeyConstants(C, P, D, Q, triplets[i], V12Solutions[j], V14Solutions[k]);
+					if(constants != NULL)
+					{
+						free(V12Solutions);
+						free(V14Solutions);
+						return constants;
+					}
 
 				}
 			}
+			free(V14Solutions);
 		}
+		free(V12Solutions);
 	}
+	return NULL;
 }
 
 /**
@@ -482,7 +497,7 @@ uint32_t *getInnerBits(uint8_t a0, uint8_t a3, uint8_t b0, uint8_t b3, uint8_t c
 	return NULL;
 }
 
-void calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet triplet, uint32_t V12, uint32_t V14)
+uint32_t *calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet triplet, uint32_t V12, uint32_t V14)
 {
 	uint32_t *N1Solutions = NULL;
 	int N1SolutionsCount = getSolutionsForXFrom3_7(Q[0], Q[12], Q[14], V12, V14, N1Solutions);
@@ -542,6 +557,43 @@ void calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, s
 			if((N2 | 0x00FFFF00) != 0x00FFFF00)
 				continue;
 
+			// Wir haben alle Konstanten zum codieren und decodieren gefunden.
+			uint32_t *constants = malloc(6 * sizeof(uint32_t));
+			constants[0] = M1;
+			constants[1] = N1Solutions[i];
+			constants[2] = M2Solutions[j];
+			constants[3] = N2;
+			constants[4] = M3_0;
+			constants[5] = N3;
+
+			free(M2Solutions);
+			free(N1Solutions);
+
+			return constants;
 		}
+		free(M2Solutions);
 	}
+	free(N1Solutions);
+	return NULL;
+}
+
+uint64_t linearDecode(uint64_t C, uint32_t *constants)
+{
+	uint32_t CL = (uint32_t)C >> 32;
+	uint32_t CR = (uint32_t)(C & 0x00000000FFFFFFFF);
+
+	uint32_t X2 = constants[M3] ^ CL ^ CR;
+	uint32_t Y2 = CL ^ constants[N3];
+	uint32_t Y1 = G(X2 ^ constants[N1]) ^ Y2;
+	uint32_t X1 = G(Y1 ^ constants[M2]) ^ X2;
+	uint32_t Y0 = G(X1) ^ Y1;
+	uint32_t X0 = G(Y0) ^ X1;
+	uint32_t PL = constants[M1] ^ X0;
+	uint32_t PR = Y0 ^ PL ^ constants[N1];
+
+	uint64_t P = PL;
+	P = P << 32;
+	P &= PR;
+
+	return P;
 }
