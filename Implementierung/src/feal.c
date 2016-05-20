@@ -8,26 +8,16 @@
 #include "feal.h"
 
 /**
- * Bit rotation nach links um eine mitgegebene Anzahl
- */
-uint8_t rotateLeft(uint8_t byte, uint8_t amountOfBits)
-{
-	if(amountOfBits > 8)
-		return -1; // Muss geändert werden.
-	uint8_t mask = 0xFF;
-	mask = mask << (8 - amountOfBits);
-	uint8_t carryover = byte & mask;
-	carryover = carryover >> (8 - amountOfBits);
-	byte = byte << amountOfBits;
-	return (byte + carryover);
-}
-
-/**
  * Implementierung der S0 und S1 Funktion aus der Quelle
  */
-uint8_t S(uint8_t x, uint8_t y, Index_t i)
+uint8_t S(int x, int y, Index_t i)
 {
-	return rotateLeft((x+y+i)%256 , 2); // stimmt vllt nicht, da datentyp uint8_t
+	uint8_t byte = (uint8_t)((x + y + i) % 256);
+	uint8_t mask = 0xC0;
+	uint8_t carryover = byte & mask;
+	byte = byte << 2;
+	carryover = carryover >> 6;
+	return(byte | carryover);
 }
 
 /**
@@ -94,9 +84,9 @@ void splitToBytes(uint32_t dWord, uint8_t *buf)
  */
 uint32_t bytesToUint32(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3)
 {
-	return (uint32_t)(((uint32_t)b0 << 24) +
-					  ((uint32_t)b2 << 16) +
-					  ((uint32_t)b1 << 8)  + b3);
+	return (uint32_t)(((uint32_t)b3 << 24) |
+					  ((uint32_t)b2 << 16) |
+					  ((uint32_t)b1 << 8)  | b0);
 }
 
 /**

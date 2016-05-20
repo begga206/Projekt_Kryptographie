@@ -10,6 +10,7 @@
 #include <time.h>
 #include <inttypes.h>
 #include "attack.h"
+#include "tests.h"
 
 
 /**
@@ -19,16 +20,18 @@
  */
 int main(void)
 {
+	/*
+	printf("Aufruf main.\n");
 	// Testschlüssel
 	uint64_t key = 0xFF00FF00FF00FF00;
 	// Array mit 16 bit subkeys
 	uint16_t *k = compSubKeys(key);
 	// 20 Plaintexte erstellen
+	printf("Waehle Plaintexte.\n");
 	uint64_t *P = choosePlainTexts();
 	uint64_t *C = malloc(20 * sizeof(uint64_t));
 
 	// Alle Plaintexte drucken
-	/**
 	if(P)
 	{
 		for(int i = 0; i < 20; i++)
@@ -49,7 +52,7 @@ int main(void)
 		uint64_t d = decode(c,k);			// decoded == plain text, wenn alles passt :D
 		printf("Decoded: 0x%" PRIx64 "\n", d);
 		free(k);
-	}*/
+	}
 
 	// C fuellen
 	for(int i = 0; i < 20; ++i)
@@ -58,6 +61,7 @@ int main(void)
 	}
 	// Attacke ausfuehren
 	uint32_t *constants = NULL;
+	printf("Fuehre Attacke aus\n.");
 	constants = attack(P, C);
 
 	if(constants != NULL)
@@ -74,6 +78,8 @@ int main(void)
 	free(constants);
 	free(k);
 	free(C);
-	free(P);
+	free(P);*/
+
+	testGetSolutionsForXFrom3_7();
 	return 0;
 }

@@ -8,8 +8,10 @@
 #ifndef HEADER_ATTACK_H_
 #define HEADER_ATTACK_H_
 
+#include <stdio.h>
 #include "feal.h"
 #include "time.h"
+#include "tests.h"
 
 typedef enum {
 	M1 = 0,
@@ -39,7 +41,7 @@ uint64_t *choosePlainTexts();
 int getSolutionsForXFrom3_1(uint32_t aDWord, uint32_t bDWord, uint32_t *solutions);
 
 int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord,
-			uint32_t dDWord, uint32_t eDWord, uint32_t * solutions);
+			uint32_t dDWord, uint32_t eDWord, uint32_t ** solutions);
 
 uint32_t *attack(uint64_t *P, uint64_t *C);
 
