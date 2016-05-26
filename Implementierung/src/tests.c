@@ -50,7 +50,7 @@ void testGetSolutionsForXFrom3_7()
 			{
 				printf("\t0x%" PRIx32 "\n", solutions[i]);
 			}
-		free(solutions);
 	}
+	free(solutions);
 	printf("Fertig.");
 }

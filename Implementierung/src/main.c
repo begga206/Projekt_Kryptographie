@@ -20,7 +20,7 @@
  */
 int main(void)
 {
-	/*
+
 	printf("Aufruf main.\n");
 	// Testschlüssel
 	uint64_t key = 0xFF00FF00FF00FF00;
@@ -42,6 +42,7 @@ int main(void)
 		free(P);
 	}
 
+	/*
 	// Kodieren und Dekodieren Test
 	if(k)
 	{
@@ -49,10 +50,11 @@ int main(void)
 		printf("Plaintext: 0x%" PRIx64 "\n", p);
 		uint64_t c = encode(p,k);			// cipher
 		printf("Encoded: 0x%" PRIx64 "\n", c);
-		uint64_t d = decode(c,k);			// decoded == plain text, wenn alles passt :D
+		uint64_t d = decode(c,k);			// decoded == plain text, wenn alles passt
 		printf("Decoded: 0x%" PRIx64 "\n", d);
 		free(k);
 	}
+	*/
 
 	// C fuellen
 	for(int i = 0; i < 20; ++i)
@@ -61,7 +63,7 @@ int main(void)
 	}
 	// Attacke ausfuehren
 	uint32_t *constants = NULL;
-	printf("Fuehre Attacke aus\n.");
+	printf("Fuehre Attacke aus.\n");
 	constants = attack(P, C);
 
 	if(constants != NULL)
@@ -70,16 +72,16 @@ int main(void)
 		printf("Plaintext: 0x%" PRIx64 "\n", p);
 		uint64_t c = encode(p,k);			// cipher
 		printf("Encoded: 0x%" PRIx64 "\n", c);
-		uint64_t d = decode(c,k);			// decoded == plain text, wenn alles passt :D
+		uint64_t d = decode(c,k);			// decoded == plain text, wenn alles passt
 		printf("Decoded: 0x%" PRIx64 "\n", d);
-		uint64_t ld = linearDecode(c, constants); // decoded == plain text, wenn alles passt :D
+		uint64_t ld = linearDecode(c, constants); // decoded == plain text, wenn alles passt
 		printf("Linear Decoded: 0x%" PRIx64 "\n", ld);
+		free(constants);
 	}
-	free(constants);
 	free(k);
 	free(C);
-	free(P);*/
+	free(P);
 
-	testGetSolutionsForXFrom3_7();
+	//testGetSolutionsForXFrom3_7();
 	return 0;
 }

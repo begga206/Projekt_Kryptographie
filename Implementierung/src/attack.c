@@ -107,7 +107,7 @@ uint64_t *choosePlainTexts()
  *
  * @return Anzahl an Loesungen fuer x
  */
-int getSolutionsForXFrom3_1(uint32_t aDWord, uint32_t bDWord, uint32_t *solutions)
+int getSolutionsForXFrom3_1(uint32_t aDWord, uint32_t bDWord, uint32_t **solutions)
 {
 	int solutionCount = 0;	// amount of solutions
 	uint8_t a[4] = {0};
@@ -118,27 +118,31 @@ int getSolutionsForXFrom3_1(uint32_t aDWord, uint32_t bDWord, uint32_t *solution
 	// Dann allokieren wir 2^8 * 32 = 8192 bit = 1024 Byte = 1 KB im Heap.
 	// Damit sollten alle moeglichen Loesungen fuer x in diesem Array
 	// gespeichert werden koennen.
-	solutions = malloc(2^8 * sizeof(uint32_t));
+	*solutions = malloc((2^12 * sizeof(uint32_t)));
 
 	// Split a to a0, a1, a2, a3 (analog fuer b)
 	splitToBytes(aDWord, a);
 	splitToBytes(bDWord, b);
 
 	//fuer jedes z1
-	for(uint8_t z1 = 0; z1 < 256; ++z1)
+	for(int i = 0; i < 256; ++i)
 	{
+		uint8_t z1 = i;
 		//fuer jedes z2
-		for(uint8_t z2 = 0; z2 < 256; ++z2)
+		for(int j = 0; j < 256; ++j)
 		{
+			uint8_t z2 = j;
 			// Falls Gleichung (3.2) nicht erfuellt ist naechste z's
 			if(S(z1 ^ a[0] ^ a[1], z2 ^ a[2] ^ a[3], ONE) != b[1])
 				continue;
 
 			// Checke, ob Gleichung aus (3.3) fuer x0, x3 erfuellt werden.
-			for(uint8_t x0 = 0; x0 < 256; ++x0)
+			for(int k = 0; k < 256; ++k)
 			{
-				for(uint8_t x3 = 0; x3 < 256; ++x3)
+				uint8_t x0 = k;
+				for(int l = 0; l < 256; ++l)
 				{
+					uint8_t x3 = l;
 					// Falls eine Gleichung aus (3.3) nicht erfuellt, naechste Iteration
 					if(S(b[1], z2 ^ a[2] ^ a[3], ZERO) != b[2])
 						continue;
@@ -150,12 +154,13 @@ int getSolutionsForXFrom3_1(uint32_t aDWord, uint32_t bDWord, uint32_t *solution
 					// Jede Gleichung fuer z1, z2, x0, x3 ist korrekt.
 					// Errechne x1, x2 (3.4) und speichere die Loesung fuer x ab.
 					uint32_t x = bytesToUint32(x0, z1 ^ x0, z2 ^ x3, x3);
-					solutions[solutionCount] = x;
+					(*solutions)[solutionCount] = x;
 					++solutionCount;
 				}
 			}
 		}
 	}
+	realloc(*solutions, solutionCount * sizeof(uint32_t));
 	return solutionCount;
 }
 
@@ -181,7 +186,7 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 	// Damit sollten alle moeglichen Loesungen fuer x in diesem Array
 	// gespeichert werden koennen.
 
-	*solutions = malloc(2^8 * sizeof(uint32_t));
+	*solutions = malloc((256 * sizeof(uint32_t)));	//TODO: muss mehr werden. ergebnis mit fast 400 lösungen vorgekommen
 
 
 	// Split a to a0, a1, a2, a3 (analog fuer b, c, d, e)
@@ -208,7 +213,6 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 			if(((alpha1 ^ beta1) != d[1]) || ((alpha1 ^ gamma1) != e[1]))
 				continue;
 
-			printf("Erste Stufe\n");
 			uint8_t alpha2 = S(alpha1, z2 ^ a[2] ^ a[3], ZERO);
 			uint8_t beta2  = S(beta1, z2 ^ b[2] ^ b[3], ZERO);
 			uint8_t gamma2 = S(gamma1, z2 ^ c[2] ^ c[3], ZERO);
@@ -239,39 +243,37 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 					// Jede Gleichung fuer z1, z2, x0, x3 ist korrekt.
 					// Errechne x1, x2 (3.4) und speichere die Loesung fuer x ab.
 					uint32_t x = bytesToUint32(x0, z1 ^ x0, z2 ^ x3, x3);
-					printf("0x%" PRIx32 "\n", x);
 					(*solutions)[solutionCount] = x;
 					++solutionCount;
-					printf("%d,%d: %d\n" , x0, x3, solutionCount);
 				}
 			}
 		}
 	}
-	realloc(*solutions, solutionCount * sizeof(uint32_t));
+	realloc(*solutions, (solutionCount * sizeof(uint32_t)));
 	return solutionCount;
 }
 
-int getSolutionsFor5_9(uint32_t D0, uint32_t D3, uint32_t D4, uint32_t C0L, uint32_t C3L, uint32_t C4L, uint32_t *solutions, int oldSolutionsCount)
+int getSolutionsFor5_9(uint32_t D0, uint32_t D3, uint32_t D4, uint32_t C0L, uint32_t C3L, uint32_t C4L, uint32_t **solutions, int oldSolutionsCount)
 {
 	uint32_t *newSolutions = malloc(oldSolutionsCount * sizeof(uint32_t));
 	int newSolutionsCount = 0;
 
 	for(int i = 0; i < oldSolutionsCount; ++i)
 	{
-		uint32_t firstEquation = G(D0 ^ solutions[i]) ^ G(D3 ^ solutions[i]) ^ C0L ^ C3L;
-		uint32_t secondEquation = G(D0 ^ solutions[i]) ^ G(D4 ^solutions[i]) ^ C0L ^ C4L;
+		uint32_t firstEquation = G(D0 ^ (*solutions)[i]) ^ G(D3 ^ (*solutions)[i]) ^ C0L ^ C3L;
+		uint32_t secondEquation = G(D0 ^ (*solutions)[i]) ^ G(D4 ^(*solutions)[i]) ^ C0L ^ C4L;
 
 		if(((firstEquation == 0x01000000) || (firstEquation == 0x03000000)) &&
-				((secondEquation == 0x000000001) || (secondEquation == 0x00000003)))
+				((secondEquation == 0x00000001) || (secondEquation == 0x00000003)))
 		{
-			newSolutions[newSolutionsCount] = solutions[i];
+			newSolutions[newSolutionsCount] = (*solutions)[i];
 			++newSolutionsCount;
 		}
 	}
 	// die alten Loesungen werden nicht mehr gebraucht.
 	free(solutions);
-	solutions = newSolutions;
-	realloc(solutions, newSolutionsCount);
+	*solutions = newSolutions;
+	realloc(*solutions, newSolutionsCount * sizeof(uint32_t));
 	return newSolutionsCount;
 }
 
@@ -290,7 +292,7 @@ int getU0Solutions(uint32_t C0L, uint32_t P0L, uint32_t D0,uint32_t *wSolutions,
 			++uSolutionsCount;
 		}
 	}
-	realloc(uSolutions, uSolutionsCount);
+	realloc(uSolutions, uSolutionsCount * sizeof(uint32_t));
 	printf("Ende getU0Solutions.\n");
 	return uSolutionsCount;
 }
@@ -310,16 +312,16 @@ int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL, uint32_t 
 }
 
 int getTriplets(uint64_t *C, uint32_t *D, uint64_t *P, uint32_t *wSolutions,
-		int wSolutionCount, uint32_t *vSolutions, int vSolutionCount, struct triplet *triplets)
+		int wSolutionCount, uint32_t *vSolutions, int vSolutionCount, struct triplet **triplets)
 {
-	printf("Aufruf getTriplets()\n.");
+	printf("Aufruf getTriplets().\n");
 	uint32_t *uSolutions = NULL;
 	int uSolutionsCount = getU0Solutions((uint32_t)(C[0] >> 32),
 			(uint32_t)(P[0] >> 32),D[0],wSolutions, wSolutionCount, vSolutions,
 			vSolutionCount, uSolutions);
 
 	int maxSize = 20;
-	triplets = malloc(maxSize * sizeof(struct triplet));
+	*triplets = malloc(maxSize * sizeof(struct triplet));
 	int tripletsCount = 0;
 
 	uint32_t C7L = (uint32_t)(P[7] >> 32);
@@ -350,20 +352,20 @@ int getTriplets(uint64_t *C, uint32_t *D, uint64_t *P, uint32_t *wSolutions,
 				{
 					if(tripletsCount == maxSize){
 						maxSize += 20;
-						realloc(triplets, maxSize);
+						realloc(*triplets, maxSize * sizeof(struct triplet));
 					}
-					triplets[tripletsCount] = trippel;
+					(*triplets)[tripletsCount] = trippel;
 					++tripletsCount;
 				}
 			}
 		}
 	}
-	realloc(triplets, tripletsCount);
-	printf("Trippel gefunden.\nEnde getTriplets().");
+	realloc(*triplets, tripletsCount * sizeof(struct triplet));
+	printf("Trippel gefunden.\nEnde getTriplets().\n");
 	return tripletsCount;
 }
 
-int constrainXOuterBitsZero(uint8_t x, uint32_t *solutions, int solutionsCount)
+int constrainXOuterBitsZero(uint8_t x, uint32_t **solutions, int solutionsCount)
 {
 	uint32_t *rtSolutions = malloc(solutionsCount * sizeof(uint32_t));
 	int rtSolutionsCount = 0;
@@ -376,21 +378,21 @@ int constrainXOuterBitsZero(uint8_t x, uint32_t *solutions, int solutionsCount)
 
 	for(int i = 0; i < solutionsCount; ++i)
 	{
-		if((solutions[i] | mask) == mask)
+		if(((*solutions)[i] | mask) == mask)
 		{
-			rtSolutions[rtSolutionsCount] = solutions[i];
+			rtSolutions[rtSolutionsCount] = (*solutions)[i];
 			++rtSolutionsCount;
 		}
 	}
-	realloc(rtSolutions, rtSolutionsCount);
-	free(solutions);
-	solutions = rtSolutions;
+	realloc(rtSolutions, rtSolutionsCount * sizeof(uint32_t));
+	free(*solutions);
+	*solutions = rtSolutions;
 	return rtSolutionsCount;
 }
 
 uint32_t *attack(uint64_t *P, uint64_t *C)
 {
-	printf("Beginn attack()\n");
+	printf("Beginn attack().\n");
 
 	uint32_t Q[20] = {0};
 	uint32_t D[20] = {0};
@@ -419,7 +421,7 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 
 	printf("Finde alle W, die (5.9) erfuellen.\n");
 	wSolutionCount = getSolutionsFor5_9(D[0], D[3], D[4], (uint32_t)(C[0] >> 32),
-			(uint32_t)(C[3] >> 32),(uint32_t)(C[4] >> 32), wSolutions, wSolutionCount);
+			(uint32_t)(C[3] >> 32),(uint32_t)(C[4] >> 32), &wSolutions, wSolutionCount);
 	printf("Alle Ws gefunden.\n");
 	// Finde fue jeden W Wert Loesungen fuer V0 mit Hilfe von (5.10)
 	uint32_t *v0Solutions = NULL;
@@ -437,10 +439,10 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 				dDWord, eDWord, &tmpSolutions);
 
 		// Wir sammeln alle Loesungen in v0Solutions.
-		realloc(v0Solutions, v0SolutionCount + tmpCount);	// Bem.: Vielleicht muss man vorher einmal malloc machen?
-		for(int i = 0; i < tmpCount; ++i)
+		realloc(v0Solutions, (v0SolutionCount + tmpCount) * sizeof(uint32_t));	// Bem.: Vielleicht muss man vorher einmal malloc machen?
+		for(int j = 0; j < tmpCount; ++j)
 		{
-			v0Solutions[i + v0SolutionCount] = tmpSolutions[i];
+			v0Solutions[j + v0SolutionCount] = tmpSolutions[j];
 		}
 		v0SolutionCount += tmpCount;
 		free(tmpSolutions);
@@ -449,7 +451,7 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 
 	// Get the (W, V0, U0) triplets, die (5.10f.) loesen.
 	struct triplet *triplets = NULL;
-	int tripletCount = getTriplets(C, D, P, wSolutions, wSolutionCount, v0Solutions, v0SolutionCount, triplets);
+	int tripletCount = getTriplets(C, D, P, wSolutions, wSolutionCount, v0Solutions, v0SolutionCount, &triplets);
 
 	// For each triplet solve for the key constants.
 	uint32_t *constants = NULL;
@@ -460,7 +462,7 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 	free(v0Solutions);
 	free(triplets);
 
-	printf("End attack()\n");
+	printf("End attack().\n");
 
 	return constants;
 }
@@ -479,9 +481,9 @@ uint32_t *attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct tri
 		// Bekomme Loesungen fuer V12, V14 (5.12)
 		printf("Finde fuer jedes Tripel Loesungen fuer V12 und V14.\n");
 		uint32_t *V12Solutions = NULL;
-		int V12SolutionsCount = getSolutionsForXFrom3_1((uint32_t)(P[12] >> 32), G(D[12] ^ triplets[i].W) ^ (uint32_t)(C[12] >> 32) ^ U12, V12Solutions);
+		int V12SolutionsCount = getSolutionsForXFrom3_1((uint32_t)(P[12] >> 32), G(D[12] ^ triplets[i].W) ^ (uint32_t)(C[12] >> 32) ^ U12, &V12Solutions);
 		uint32_t *V14Solutions = NULL;
-		int V14SolutionsCount = getSolutionsForXFrom3_1((uint32_t)(P[14] >> 32), G(D[14] ^ triplets[i].W) ^ (uint32_t)(C[14] >> 32) ^ U14, V14Solutions);
+		int V14SolutionsCount = getSolutionsForXFrom3_1((uint32_t)(P[14] >> 32), G(D[14] ^ triplets[i].W) ^ (uint32_t)(C[14] >> 32) ^ U14, &V14Solutions);
 		printf("Loesungen fuer V12 und V14 gefunden.\nSchau, ob V13, V15 (5.4) erfuellen.\n");
 		// Check, ob V13, V15 (5.4) erfuellen
 		for(int j = 0; j < V12SolutionsCount; ++j)
@@ -497,7 +499,7 @@ uint32_t *attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct tri
 					{
 						free(V12Solutions);
 						free(V14Solutions);
-						printf("Ende attack2()");
+						printf("Ende attack2().\n");
 						return constants;
 					}
 
@@ -507,7 +509,7 @@ uint32_t *attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct tri
 		}
 		free(V12Solutions);
 	}
-	printf("Ende attack2()");
+	printf("Ende attack2().\n");
 	return NULL;
 }
 
@@ -523,19 +525,9 @@ uint8_t invS(uint8_t a, uint8_t b, Index_t i)
 	return ((a - b - i) % 256);
 }
 
-/**
- * Wir verwenden die Funktionen fK, um die inneren bits von a, b, c zu errechnen.
- */
-uint32_t *getInnerBits(uint8_t a0, uint8_t a3, uint8_t b0, uint8_t b3, uint8_t c0, uint8_t c3)
-{
-	uint8_t c2 = invS(c3, a3, ONE) ^ b3;
-	//TODO: Herausfinden wie das geht
-	return NULL;
-}
-
 uint32_t *calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet triplet, uint32_t V12, uint32_t V14)
 {
-	printf("Aufruf calculateKeyConstants()");
+	printf("Aufruf calculateKeyConstants().\n");
 	uint32_t *N1Solutions = NULL;
 	printf("Finde Loesungen fuer N1.\n");
 	int N1SolutionsCount = getSolutionsForXFrom3_7(Q[0], Q[12], Q[14], V12, V14, &N1Solutions);
@@ -572,7 +564,7 @@ uint32_t *calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t 
 				X1_0 ^ X1_17 ^ D[0] ^ D[17], X1_0 ^ X1_18 ^ D[0] ^ D[18], &M2Solutions);
 
 		// Wir duerfen nur die M2 Loesungen nehmen, deren 16 aeussere Bits 0 sind.
-		M2SolutionsCount = constrainXOuterBitsZero(16, M2Solutions, M2SolutionsCount);
+		M2SolutionsCount = constrainXOuterBitsZero(16, &M2Solutions, M2SolutionsCount);
 
 		// Fuer jedes moegliche M2 errechnen wir X2_0, X2_17, X2_18
 		for(int j = 0; j < M2SolutionsCount; ++j)
