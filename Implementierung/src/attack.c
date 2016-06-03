@@ -394,14 +394,15 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 {
 	printf("Beginn attack().\n");
 
-	uint32_t Q[20] = {0};
-	uint32_t D[20] = {0};
+	uint32_t Q[20];
+	uint32_t D[20];
 
 	// Initialisiere Q und D fuer i = 1,...,20.
 	for(int i = 0; i < 20; ++i)
 	{
 		Q[i] = (uint32_t)((P[i] >> 32) ^ (P[i] & 0x00000000FFFFFFFF));
 		D[i] = (uint32_t)((C[i] >> 32) ^ (C[i] & 0x00000000FFFFFFFF));
+		//printf("Q[%d]: 0x%" PRIx32 "\tP[%d]: 0x%" PRIx64 "\n",i, Q[i], i, P[i]);
 	}
 
 

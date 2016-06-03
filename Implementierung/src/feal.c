@@ -126,8 +126,8 @@ uint64_t encode(uint64_t p, uint16_t *k)
 	uint32_t l[5];
 	uint32_t r[5];
 
-	uint32_t pL = p >> 32;
-	uint32_t pR = p;
+	uint32_t pL = (uint32_t)(p >> 32);
+	uint32_t pR = (uint32_t)(p & 0x00000000ffffffff);
 
 	uint32_t k45 = k[4];
 	k45 = (k45 << 16) + k[5];
