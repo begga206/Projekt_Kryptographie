@@ -186,7 +186,7 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 	// Damit sollten alle moeglichen Loesungen fuer x in diesem Array
 	// gespeichert werden koennen.
 
-	*solutions = malloc((256 * sizeof(uint32_t)));	//TODO: muss mehr werden. ergebnis mit fast 400 lösungen vorgekommen
+	*solutions = malloc((2^17 * sizeof(uint32_t)));	//TODO: muss mehr werden. ergebnis mit fast 400 lösungen vorgekommen
 
 
 	// Split a to a0, a1, a2, a3 (analog fuer b, c, d, e)
@@ -249,7 +249,6 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 			}
 		}
 	}
-	realloc(*solutions, (solutionCount * sizeof(uint32_t)));
 	return solutionCount;
 }
 

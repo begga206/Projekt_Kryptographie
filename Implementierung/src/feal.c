@@ -49,8 +49,8 @@ uint32_t fK(uint32_t aWord, uint32_t bWord)
  */
 uint32_t f(uint32_t aDWord, uint16_t b)
 {
-	uint8_t b1 = b >> 8;
-	uint8_t b2 = b;
+	uint8_t b1 = (uint8_t) b;
+	uint8_t b2 = (uint8_t)(b >> 8);
 	uint8_t a[4] = {0};
 	uint8_t c0, c1, c2, c3, d1, d2;
 

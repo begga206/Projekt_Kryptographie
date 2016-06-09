@@ -52,7 +52,7 @@ int main(void)
 	P[18]= 0x3fed32d9484d00b3;
 	P[19]= 0x62ed78ed241131ae;
 
-	// Alle Plaintexte drucken
+	// Alle Plaintexte drucken		// wieso doopelt drucken?
 	if(P)
 	{
 		for(int i = 0; i < 20; i++)
@@ -73,14 +73,15 @@ int main(void)
 		uint64_t d = decode(c,k);			// decoded == plain text, wenn alles passt
 		printf("Decoded: 0x%" PRIx64 "\n", d);
 		free(k);
-	}
-	*/
+	}*/
 
 	// C fuellen
 	for(int i = 0; i < 20; ++i)
 	{
 		C[i] = encode(P[i], k);
 	}
+
+	printf("\n");
 
 	if(P)
 	{
