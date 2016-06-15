@@ -25,18 +25,24 @@ void testGetSolutionsForXFrom3_7()
 	srand(time(0));
 	uint32_t *solutions = NULL;
 	// Erstelle a, b, c, x, d, e
-	uint32_t a = getRandomUint32();
+	/*uint32_t a = getRandomUint32();
 	uint32_t b = getRandomUint32();
 	uint32_t c = getRandomUint32();
 	uint32_t x = 0xABCDEF12;
 	uint32_t d = G(x ^ a) ^ G(x ^ b);
 	uint32_t e = G(x ^ a) ^ G(x ^ c);
+	*/
+	uint32_t a = 0x56be8770;
+	uint32_t b = 0x6e069f91;
+	uint32_t c = 0xd5de0fc8;
+	uint32_t d = 0x6791a414;
+	uint32_t e = 0xaca6c6fb;
 
 	printf("%s: Anfang getSolutionsForXFrom3_7\n", time_stamp());
 	printf("\ta = 0x%" PRIx32 "\n", a);
 	printf("\tb = 0x%" PRIx32 "\n", b);
 	printf("\tc = 0x%" PRIx32 "\n", c);
-	printf("\tx = 0x%" PRIx32 "\n", x);
+	//printf("\tx = 0x%" PRIx32 "\n", x);
 	printf("\td = 0x%" PRIx32 "\n", d);
 	printf("\te = 0x%" PRIx32 "\n", e);
 

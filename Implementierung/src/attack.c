@@ -181,12 +181,12 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 	uint8_t e[4] = {0};
 
 	// Allokiere Plaetze, um die Loesungen fuer x zu speichern.
-	// Nehmen wir an, das 50% aller z1, z2 die Gleichung (3.2) erfuellen.
-	// Dann allokieren wir 2^8 * 32 = 8192 bit = 1024 Byte = 1 KB im Heap.
+	// Nehmen wir an, das 100% aller z1, z2 die Gleichung (3.2) erfuellen.
+	// Dann allokieren wir 2^17 * 32 = 4194304 bit = 524288 Byte = 512 KB im Heap.
 	// Damit sollten alle moeglichen Loesungen fuer x in diesem Array
 	// gespeichert werden koennen.
 
-	*solutions = malloc((2^17 * sizeof(uint32_t)));	//TODO: muss mehr werden. ergebnis mit fast 400 lösungen vorgekommen
+	uint32_t *tmpPointer = malloc(131072 * sizeof(uint32_t));	//2^17 hat nicht funktioniert, also 131072 ausgeschrieben...
 
 
 	// Split a to a0, a1, a2, a3 (analog fuer b, c, d, e)
@@ -243,12 +243,13 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 					// Jede Gleichung fuer z1, z2, x0, x3 ist korrekt.
 					// Errechne x1, x2 (3.4) und speichere die Loesung fuer x ab.
 					uint32_t x = bytesToUint32(x0, z1 ^ x0, z2 ^ x3, x3);
-					(*solutions)[solutionCount] = x;
+					tmpPointer[solutionCount] = x;
 					++solutionCount;
 				}
 			}
 		}
 	}
+	*solutions = realloc(tmpPointer, solutionCount * sizeof(uint32_t));
 	return solutionCount;
 }
 
@@ -414,7 +415,6 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 	printf("Get Solutions for w.\n");
 
 	int wSolutionCount = getSolutionsForXFrom3_7(D[0], D[1], D[2], dDWord, eDWord, &wSolutions);
-
 	printf("Found Solutions for w.\n");
 
 	// Finde alle W, die die Gleichungen (5.9) erkennen.
