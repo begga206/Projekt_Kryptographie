@@ -8,7 +8,11 @@
 #include "attack.h"
 
 /**
- * Hilfsfunktion G
+ * Hilfsfunktion G aus dem Paper
+ * c = G(a) 	(2.1)
+ *
+ * @param aDWord - 32 bit parameter
+ * @return c
  */
 uint32_t G(uint32_t aDWord)
 {
@@ -29,24 +33,10 @@ uint32_t G(uint32_t aDWord)
 }
 
 /**
- * "Simple functions" O_L
- */
-uint32_t O_L(uint32_t a)
-{
-	return (a >> 8) & 0x00FFFF00;
-}
-
-/**
- * "Simple functions" O_R
- */
-uint32_t O_R(uint32_t a)
-{
-	return (a << 8) & 0x00FFFF00;
-}
-
-/**
  * Wähle die 20 Plaintexte, die nötig für die Attacke sind, nach der Vorgabe
  * aus der Quelle.
+ *
+ * @return Pointer auf die Plaintextbloecke
  */
 uint64_t *choosePlainTexts()
 {
@@ -100,10 +90,13 @@ uint64_t *choosePlainTexts()
 	return P;
 }
 
-
 /**
  * Implementierung der Funktionen 3.2-3.4 um für G(x ^ a) = b Loesungen fuer
  * x zu finden. Diese sind in einem Array gespeichert.
+ *
+ * @param aDWord 		- a
+ * @param bDWord 		- b
+ * @param **solutions 	- Wo die Loesungen gespeichert sind
  *
  * @return Anzahl an Loesungen fuer x
  */
@@ -168,6 +161,16 @@ int getSolutionsForXFrom3_1(uint32_t aDWord, uint32_t bDWord, uint32_t **solutio
  * Schaut fuer z1, z2, x0, x3, ob die Gleichungen aus (3.6) korrekt sind.
  * Jedoch fuer zwei Gleichungen simultan (3.7). Falls alle Gleichungen
  * korrekt sind, wird die Loesung abgespeichert.
+ *
+ * G(x ^ a) ^ G(x ^ b) = d
+ * G(x ^ a) ^ G(x ^ c) = e			(3.7)
+ *
+ * @param aDWord 	- a
+ * @param bDWord 	- b
+ * @param cDWord	- c
+ * @param dDWord	- d
+ * @param eDWord	- e
+ * @param solutions - Wo die Loesungen gespeichert sind
  *
  * @return Anzahl der gefundenen Loesungen
  */
@@ -253,11 +256,28 @@ int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t bDWord, uint32_t cDWord, u
 	return solutionCount;
 }
 
+/*
+ * Schraenkt die Loesungen an Ws ein, indem geprueft wird, ob W die folgenden
+ * Gleichungen loest:
+ *
+ * 	G(D0 ^ W) ^ G(D3 ^ W) ^ C0L ^ C3L = 01000000 || 03000000	(5.9)
+ * 	G(D0 ^ W) ^ G(D4 ^ W) ^ C0L ^ C4L = 00000001 || 00000003
+ *
+ * 	@param D0
+ * 	@param D3
+ * 	@param D4
+ * 	@param C0L
+ * 	@param C3L
+ * 	@param C4L
+ * 	@param solutions		- Wo die bisherigen Loesungen gespeichert sind
+ * 	@param solutionsCount 	- Anzahl der bisherigen Loesungen
+ */
 int getSolutionsFor5_9(uint32_t D0, uint32_t D3, uint32_t D4, uint32_t C0L, uint32_t C3L, uint32_t C4L, uint32_t **solutions, int oldSolutionsCount)
 {
 	uint32_t *newSolutions = malloc(oldSolutionsCount * sizeof(uint32_t));
 	int newSolutionsCount = 0;
 
+	// Ueberpruefe fuer jedes W, ob es die Gleichungen loest.
 	for(int i = 0; i < oldSolutionsCount; ++i)
 	{
 		uint32_t firstEquation = G(D0 ^ (*solutions)[i]) ^ G(D3 ^ (*solutions)[i]) ^ C0L ^ C3L;
@@ -277,6 +297,22 @@ int getSolutionsFor5_9(uint32_t D0, uint32_t D3, uint32_t D4, uint32_t C0L, uint
 	return newSolutionsCount;
 }
 
+/**
+ * Berechnet Loesungen fuer U0, abhaengig von W und V0 Loesungen mit Hilfe der
+ * Gleichung:
+ * 	CiL ^ U0 ^ G(PiL ^ V0) ^ G(Di ^ W) = 0		i = 0 		(5.5)
+ *
+ * 	@param C0L
+ * 	@param P0L
+ * 	@param D0
+ * 	@param wSolutions
+ * 	@param wSolutionsCount
+ * 	@param vSolutions
+ * 	@param vSolutionsCount
+ * 	@param uSolutions
+ *
+ * 	@return Anzahl an Loesungen fuer U0
+ */
 int getU0Solutions(uint32_t C0L, uint32_t P0L, uint32_t D0,uint32_t *wSolutions, int wSolutionCount,
 		uint32_t *vSolutions, int vSolutionCount, uint32_t * uSolutions)
 {
@@ -297,6 +333,19 @@ int getU0Solutions(uint32_t C0L, uint32_t P0L, uint32_t D0,uint32_t *wSolutions,
 	return uSolutionsCount;
 }
 
+/**
+ * Prueft, ob die Parameter Gleichung 5.4 erfuellen:
+ *
+ * CiL ^ Ui ^ G(PiL ^ Vi) ^ G(Di ^ W) = 0 	(5.4)
+ *
+ * @param CiL
+ * @param PiL
+ * @param Vi
+ * @param Di
+ * @param W
+ *
+ * @return 1, wenn erfuellt ; 0, wenn nicht
+ */
 int doesStaisfy5_4(uint32_t CiL, uint32_t Ui, uint32_t PiL, uint32_t Vi, uint32_t Di , uint32_t W)
 {
 	if(( CiL ^ Ui ^ G(PiL ^ Vi) ^ G(Di ^ W)) == 0)
@@ -304,6 +353,18 @@ int doesStaisfy5_4(uint32_t CiL, uint32_t Ui, uint32_t PiL, uint32_t Vi, uint32_
 	return 0;
 }
 
+/**
+ * Prueft, ob die Parameter Gleichung 5.5 erfuellen:
+ *
+ * 	CiL ^ U0 ^ G(PiL ^ V0) ^ G(Di ^ W) = 0		i = 0 		(5.5)
+ *
+ * @param CiL
+ * @param trippel
+ * @param PiL
+ * @param Di
+ *
+ * @return 1, wenn erfuellt ; 0, wenn nicht
+ */
 int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL, uint32_t Di)
 {
 	if(( CiL ^ trippel.U0 ^ G(PiL ^ trippel.V0) ^ G(Di ^ trippel.W)) == 0)
@@ -311,6 +372,21 @@ int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL, uint32_t 
 	return 0;
 }
 
+/**
+ * Findet Tripel (W, U0, V0), die Kandidaten sind, um die Schluesselkonstanten
+ * zu errechnen.
+ *
+ * @param C
+ * @param D
+ * @param P
+ * @param wSolutions
+ * @param wSolutionsCount
+ * @param vSolutions
+ * @param vSolutionsCount
+ * @param triplets
+ *
+ * @return Anzahl an gefundenen Tripeln
+ */
 int getTriplets(uint64_t *C, uint32_t *D, uint64_t *P, uint32_t *wSolutions,
 		int wSolutionCount, uint32_t *vSolutions, int vSolutionCount, struct triplet **triplets)
 {
@@ -365,17 +441,28 @@ int getTriplets(uint64_t *C, uint32_t *D, uint64_t *P, uint32_t *wSolutions,
 	return tripletsCount;
 }
 
+/**
+ * Ueberprueft, ob x aeussere bits eines Doppelworts 0 sind und fuegt diese dann
+ * denn Loesungen hinzu.
+ *
+ * @param x 			- Anzahl der aeusseren bits
+ * @param **solution 	- Pointer auf den Pointer der bisherigen Loesungen
+ * @param solutionCount - Anzahl der bisherigen Loesungen
+ *
+ * @return Teilmenge der bisherigen Loesungen, die die Bedingung erfuellen
+ */
 int constrainXOuterBitsZero(uint8_t x, uint32_t **solutions, int solutionsCount)
 {
 	uint32_t *rtSolutions = malloc(solutionsCount * sizeof(uint32_t));
 	int rtSolutionsCount = 0;
 
-	// Konstruiere die Maske
+	// Konstruiere die Maske.
 	uint32_t mask = (uint32_t)0xFFFFFFFF;
 	uint32_t mask1 = mask >> x/2;
 	uint32_t mask2 = mask << x/2;
 	mask = mask1 & mask2;
 
+	// Ueberpruefe welche Doppelwoerter die Bedingung erfuellen.
 	for(int i = 0; i < solutionsCount; ++i)
 	{
 		if(((*solutions)[i] | mask) == mask)
@@ -384,12 +471,22 @@ int constrainXOuterBitsZero(uint8_t x, uint32_t **solutions, int solutionsCount)
 			++rtSolutionsCount;
 		}
 	}
+
+	// Reallokiere auf die neue Anzahl Loesungen und gib diese zurueck.
 	realloc(rtSolutions, rtSolutionsCount * sizeof(uint32_t));
 	free(*solutions);
 	*solutions = rtSolutions;
 	return rtSolutionsCount;
 }
 
+/**
+ * Einstieg der Attacke auf den FEAL Algorithmus
+ *
+ * @param *P	- Pointer auf die 20 64 bit Plaintextbloecke
+ * @param *C	- Pointer auf die 20 64 bit Cipherbloecke zu P
+ *
+ * @return Pointer auf die Konstanten, die zum "linearen Dekodieren" benoetigt werden
+ */
 uint32_t *attack(uint64_t *P, uint64_t *C)
 {
 	printf("Beginn attack().\n");
@@ -405,8 +502,7 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 		//printf("Q[%d]: 0x%" PRIx32 "\tP[%d]: 0x%" PRIx64 "\n",i, Q[i], i, P[i]);
 	}
 
-
-	// Compute W.
+	// Finde Loesungen fuer W.
 	uint32_t *wSolutions = NULL;
 	uint32_t dDWord = (uint32_t)((C[0] >> 32) ^ (C[1] >> 32) ^ 0x02000000);
 	uint32_t eDWord = (uint32_t)((C[0] >> 32) ^ (C[2] >> 32) ^ 0x00000002);
@@ -429,6 +525,11 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 	int v0SolutionCount = 0;
 
 	printf("Finde fuer jedes W Loesungen fuer V0.\n");
+	//=========================================================================
+	//=========================================================================
+	// Problem beim finden von Loesungen fuer V0
+	//=========================================================================
+	//=========================================================================
 	for(int i = 0; i < wSolutionCount; ++i)
 	{
 		dDWord = (uint32_t)((C[0] >> 32) ^ (C[5] >> 32) ^ G(D[0] + wSolutions[i]) ^ G(D[5] ^ wSolutions[i]));
@@ -447,6 +548,12 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 		v0SolutionCount += tmpCount;
 		free(tmpSolutions);
 	}
+	//=========================================================================
+	//=========================================================================
+	// Der folgende Programbereich wurde noch nicht debuggt, da das Problem
+	// schon vorher keine weiteren Rechnungen ermoeglicht.
+	//=========================================================================
+	//=========================================================================
 	printf("Alle V0s gefunden.\n");
 
 	// Get the (W, V0, U0) triplets, die (5.10f.) loesen.
@@ -467,6 +574,17 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 	return constants;
 }
 
+/**
+ * Zweiter Teil der Attacke
+ *
+ * @param *P		- Pointer auf die 20 64 bit Plaintextbloecke
+ * @param *C		- Pointer auf die 20 64 bit Cipherbloecke zu P
+ * @param *D
+ * @param *Q
+ * @param triplets 	- Die gefundenen Tripel bestehend aus: W, U0, V0
+ *
+ * @return Pointer auf die Konstanten, die zum "linearen Dekodieren" benoetigt werden
+ */
 uint32_t *attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet *triplets, int tripletCount)
 {
 	printf("Aufruf attack2().\n");
@@ -514,17 +632,18 @@ uint32_t *attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct tri
 }
 
 /**
- * Loest a = Si( x, b) fuer bekannte a,b
+ * Errechnet die Schluesselkonstanten
+ *
+ * @param C
+ * @param P
+ * @param D
+ * @param Q
+ * @param triplet
+ * @param V12
+ * @param V14
+ *
+ * @return Pointer, der auf die Schluesselkonstanten zeigt oder NULL
  */
-uint8_t invS(uint8_t a, uint8_t b, Index_t i)
-{
-	uint8_t mask = 0xFD;
-	uint8_t carryover = a & mask;
-	carryover = carryover << 6;
-	a = a >> 2;
-	return ((a - b - i) % 256);
-}
-
 uint32_t *calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct triplet triplet, uint32_t V12, uint32_t V14)
 {
 	printf("Aufruf calculateKeyConstants().\n");
@@ -608,6 +727,47 @@ uint32_t *calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t 
 	return NULL;
 }
 
+uint32_t theta_L(uint32_t a)
+{
+	return((a << 8) & 0x00ffffff);
+}
+
+uint32_t theta_R(uint32_t a)
+{
+	return((a >> 8) & 0xffffff00);
+}
+
+uint32_t *computeConstants(uint16_t *subkeys)
+{
+	uint32_t *constants = malloc(6 * sizeof(uint32_t));
+	uint32_t b[7] = {0};
+
+	// b initialisieren.
+	for(int i = 1; i <= 6; ++i)
+	{
+		b[i] = subkeys[2*(i-1)];
+		b[i] = (b[i] << 16) | subkeys[2*i-1];
+	}
+
+	// Keykonstanten errechnen.
+	constants[M1] = b[3] ^ theta_R(b[1]);
+	constants[N1] = b[3] ^ b[4] ^ theta_L(b[1]);
+	constants[M2] = theta_L(b[1]) ^ theta_L(b[2]);
+	constants[N2] = theta_R(b[1]) ^ theta_R(b[2]);
+	constants[M3] = b[5] ^ b[6] ^ theta_R(b[1]);
+	constants[N3] = b[5] ^ theta_L(b[1]);
+
+	return constants;
+}
+
+/**
+ * Funktion, die einen Cipherblock mit Hilfe der Schluesselkonstanten dekodiert.
+ *
+ * @param C 		- Cipherblock
+ * @param constants	- Schluesselkonstanten
+ *
+ * @return 64 Plaintextblock
+ */
 uint64_t linearDecode(uint64_t C, uint32_t *constants)
 {
 	uint32_t CL = (uint32_t)(C >> 32);

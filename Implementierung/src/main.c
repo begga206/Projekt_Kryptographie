@@ -31,6 +31,7 @@ int main(void)
 	uint64_t *P = malloc(20 * sizeof(uint64_t));//choosePlainTexts();
 	uint64_t *C = malloc(20 * sizeof(uint64_t));
 
+	// Diese Plaintexte verwenden, um mit konsistenten Daten zu debuggen
 	P[0]= 0x0efe078658612aea;
 	P[1]= 0x8e7e0786d8e12aea;
 	P[2]= 0x0efe87065861aa6a;
@@ -52,7 +53,7 @@ int main(void)
 	P[18]= 0x3fed32d9484d00b3;
 	P[19]= 0x62ed78ed241131ae;
 
-	// Alle Plaintexte drucken		// wieso doopelt drucken?
+	// Alle Plaintexte drucken
 	if(P)
 	{
 		for(int i = 0; i < 20; i++)
@@ -74,7 +75,7 @@ int main(void)
 		printf("Decoded: 0x%" PRIx64 "\n", d);
 		free(k);
 	}*/
-
+	/*
 	// C fuellen
 	for(int i = 0; i < 20; ++i)
 	{
@@ -112,7 +113,7 @@ int main(void)
 	free(k);
 	free(C);
 	free(P);
-
+	*/
 	//testGetSolutionsForXFrom3_7();
 	return 0;
 }

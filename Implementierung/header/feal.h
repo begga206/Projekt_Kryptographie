@@ -19,6 +19,7 @@ uint32_t fK(uint32_t aWord, uint32_t bWord);
 uint32_t f(uint32_t aWord, uint16_t b);
 void splitToBytes(uint32_t word, uint8_t *buf);
 uint32_t bytesToUint32(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3);
+uint32_t wordsToUint32(uint16_t w0, uint16_t w1);
 uint16_t *compSubKeys(uint64_t key);
 uint64_t encode(uint64_t p, uint16_t *k);
 uint64_t decode(uint64_t c, uint16_t * k);

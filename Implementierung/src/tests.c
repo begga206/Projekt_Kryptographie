@@ -1,6 +1,10 @@
 #include "tests.h"
 
-
+/**
+ * Erstellt einen Timestamp
+ *
+ * @return Timestamp als String
+ */
 char *time_stamp(){
 
 	char *timestamp = (char *)malloc(sizeof(char) * 16);
@@ -14,12 +18,20 @@ char *time_stamp(){
 	return timestamp;
 }
 
+/**
+ * Erstellt eine zufaellige 32 bit Zahl
+ *
+ * @return random 32 bit Uint
+ */
 uint32_t getRandomUint32()
 {
 	uint32_t result = ((uint32_t)rand() << 16) + ((uint32_t)rand());
 	return result;
 }
 
+/**
+ * Testfunktion fuer "GetSolutionsForXFrom3_7)
+ */
 void testGetSolutionsForXFrom3_7()
 {
 	srand(time(0));
