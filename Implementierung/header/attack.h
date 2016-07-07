@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include "feal.h"
 #include "time.h"
-#include "tests.h"
 
 /*
  * Enum fuer die 6 Schluesselkonstanten
@@ -33,7 +32,8 @@ struct triplet{
 
 
 uint32_t G(uint32_t aDWord);
-
+uint32_t theta_L(uint32_t a);
+uint32_t theta_R(uint32_t a);
 uint64_t *choosePlainTexts();
 
 int getSolutionsForXFrom3_1(uint32_t aDWord, uint32_t bDWord, uint32_t **solutions);
@@ -65,5 +65,7 @@ int doesStaisfy5_4(uint32_t CiL, uint32_t Ui, uint32_t PiL, uint32_t Vi, uint32_
 int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL, uint32_t Di);
 
 uint64_t linearDecode(uint64_t C, uint32_t *constants);
+
+uint32_t *computeConstants(uint16_t *subkeys);
 
 #endif /* HEADER_ATTACK_H_ */

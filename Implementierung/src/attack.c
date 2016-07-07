@@ -773,6 +773,7 @@ uint64_t linearDecode(uint64_t C, uint32_t *constants)
 	uint32_t CL = (uint32_t)(C >> 32);
 	uint32_t CR = (uint32_t)(C & 0x00000000FFFFFFFF);
 
+
 	uint32_t X2 = constants[M3] ^ CL ^ CR;
 	uint32_t Y2 = CL ^ constants[N3];
 	uint32_t Y1 = G(X2 ^ constants[N1]) ^ Y2;
@@ -785,6 +786,5 @@ uint64_t linearDecode(uint64_t C, uint32_t *constants)
 	uint64_t P = PL;
 	P = P << 32;
 	P &= PR;
-
 	return P;
 }
