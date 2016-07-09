@@ -21,6 +21,7 @@
  */
 int main(void)
 {
+
 	// An dieser Stelle koennen verschiedene Verifikationen aufgerufen werden.
 	if(verify(FUNCTION_COMP_CONSTANTS, 1))
 	{

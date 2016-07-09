@@ -729,12 +729,12 @@ uint32_t *calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t 
 
 uint32_t theta_L(uint32_t a)
 {
-	return((a << 8) & 0x00ffffff);
+	return((a >> 8) & 0xffffff00);
 }
 
 uint32_t theta_R(uint32_t a)
 {
-	return((a >> 8) & 0xffffff00);
+	return((a << 8) & 0x00ffffff);
 }
 
 uint32_t *computeConstants(uint16_t *subkeys)
@@ -760,6 +760,23 @@ uint32_t *computeConstants(uint16_t *subkeys)
 	return constants;
 }
 
+uint64_t linearEncode(uint64_t P, uint32_t *constants)
+{
+	uint32_t PL = (uint32_t)(P >> 32);
+	uint32_t PR = (uint32_t)(P & 0x00000000FFFFFFFF);
+
+	uint32_t X0 = PL ^ constants[M1];
+	uint32_t Y0 = PL ^ PR ^ constants[N1];
+	uint32_t X1 = X0 ^ G(Y0);
+	uint32_t Y1 = Y0 ^ G(X1);
+	uint32_t X2 = X1 ^ G(Y1 ^ constants[M2]);
+	uint32_t Y2 = Y1 ^ G(X2 ^ constants[N2]);
+	uint32_t CL = Y2 ^ constants[N3];
+	uint32_t CR = X2 ^ constants[M3] ^ CL;
+
+	return (uint64_t)(((uint64_t)CL << 32) | CR);
+}
+
 /**
  * Funktion, die einen Cipherblock mit Hilfe der Schluesselkonstanten dekodiert.
  *
@@ -773,18 +790,14 @@ uint64_t linearDecode(uint64_t C, uint32_t *constants)
 	uint32_t CL = (uint32_t)(C >> 32);
 	uint32_t CR = (uint32_t)(C & 0x00000000FFFFFFFF);
 
-
 	uint32_t X2 = constants[M3] ^ CL ^ CR;
 	uint32_t Y2 = CL ^ constants[N3];
-	uint32_t Y1 = G(X2 ^ constants[N1]) ^ Y2;
+	uint32_t Y1 = G(X2 ^ constants[N2]) ^ Y2;
 	uint32_t X1 = G(Y1 ^ constants[M2]) ^ X2;
 	uint32_t Y0 = G(X1) ^ Y1;
 	uint32_t X0 = G(Y0) ^ X1;
 	uint32_t PL = constants[M1] ^ X0;
 	uint32_t PR = Y0 ^ PL ^ constants[N1];
 
-	uint64_t P = PL;
-	P = P << 32;
-	P &= PR;
-	return P;
+	return (uint64_t)(((uint64_t)PL << 32) | PR);
 }

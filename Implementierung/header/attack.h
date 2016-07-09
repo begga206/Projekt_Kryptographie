@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include "feal.h"
 #include "time.h"
+#include <inttypes.h>
 
 /*
  * Enum fuer die 6 Schluesselkonstanten
@@ -65,7 +66,7 @@ int doesStaisfy5_4(uint32_t CiL, uint32_t Ui, uint32_t PiL, uint32_t Vi, uint32_
 int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL, uint32_t Di);
 
 uint64_t linearDecode(uint64_t C, uint32_t *constants);
-
+uint64_t linearEncode(uint64_t P, uint32_t *constants);
 uint32_t *computeConstants(uint16_t *subkeys);
 
 #endif /* HEADER_ATTACK_H_ */

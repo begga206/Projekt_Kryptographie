@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 
+
 typedef enum {ZERO = 0, ONE = 1} Index_t;
 
 uint8_t S(int x, int y, Index_t i);

@@ -73,8 +73,8 @@ uint32_t fK(uint32_t aDWord, uint32_t bDWord)
  */
 uint32_t f(uint32_t aDWord, uint16_t b)
 {
-	uint8_t b1 = (uint8_t) b;
-	uint8_t b2 = (uint8_t)(b >> 8);
+	uint8_t b2 = (uint8_t) b;
+	uint8_t b1 = (uint8_t)(b >> 8);
 	uint8_t a[4] = {0};
 	uint8_t c0, c1, c2, c3, d1, d2;
 
@@ -99,17 +99,18 @@ uint32_t f(uint32_t aDWord, uint16_t b)
  */
 void splitToBytes(uint32_t dWord, uint8_t *buf)
 {
-	for(int i = 0; i < 4; ++i)
+	for(int i = 3; i >= 0; --i)
 	{
 		buf[i] = dWord & 0x000000FF;
 		dWord = dWord >> 8;
 	}
+
 }
 
 /**
  * Konkateniert 4 Bytes zu einem Doppelwort.
  *
- * @param b0 - Least significant byte
+ * @param b0 - Most significant byte
  * @param b1
  * @param b2
  * @param b3
@@ -118,22 +119,22 @@ void splitToBytes(uint32_t dWord, uint8_t *buf)
  */
 uint32_t bytesToUint32(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3)
 {
-	return (uint32_t)(((uint32_t)b3 << 24) |
-					  ((uint32_t)b2 << 16) |
-					  ((uint32_t)b1 << 8)  | b0);
+	return (uint32_t)(((uint32_t)b0 << 24) |
+						  ((uint32_t)b1 << 16) |
+						  ((uint32_t)b2 << 8)  | b3);
 }
 
 /**
  * Konkateniert zwei Woerter zu einem Doppelwort.
  *
- * @param w0 - Rechte Haelfte des Doppelworts
- * @param w1 - Linke Haelfte des Doppelworts
+ * @param w0 - Linke Haelfte des Doppelworts
+ * @param w1 - Rechte Haelfte des Doppelworts
  *
  * @return Das resultierende Doppelwort
  */
 uint32_t wordsToUint32(uint16_t w0, uint16_t w1)
 {
-	return (uint32_t)(((uint32_t)w1 << 16) | w0);
+	return (uint32_t)(((uint32_t)w0 << 16) | w1);
 }
 
 /**
@@ -150,7 +151,7 @@ uint16_t *compSubKeys(uint64_t key)
 
 	// Aufspalten des Keys in 2 Doppelwoerter.
 	uint32_t keyR = key;
-	uint32_t keyL = key >> 32;
+	uint32_t keyL = (uint32_t)(key >> 32);
 
 	// Initialisierung des zur Berechnung verwendeten Arrays.
 	uint32_t b[9] = {0};
@@ -193,10 +194,10 @@ uint64_t encode(uint64_t p, uint16_t *k)
 
 	// Konkatenation von 16 bit Schluesselpaaren zu einem Doppelwort.
 	// TODO: Entspricht die Konkatenation dem Paper-Ausdruck?
-	uint32_t k45 = wordsToUint32(k[5], k[4]);
-	uint32_t k67 = wordsToUint32(k[7], k[6]);
-	uint32_t k89 = wordsToUint32(k[9], k[8]);
-	uint32_t k1011 = wordsToUint32(k[11], k[10]);
+	uint32_t k45 = wordsToUint32(k[4], k[5]);
+	uint32_t k67 = wordsToUint32(k[6], k[7]);
+	uint32_t k89 = wordsToUint32(k[8], k[9]);
+	uint32_t k1011 = wordsToUint32(k[10], k[11]);
 
 	// Beginn der eigentlichen Kodierung.
 	l[0] = pL ^ k45;
@@ -214,10 +215,7 @@ uint64_t encode(uint64_t p, uint16_t *k)
 	uint32_t cR = r[4] ^ l[4] ^ k1011;
 
 	// Zusammenfuehrung der linken und rechten Cipherblockhaelften.
-	uint64_t c = cL;
-	c = (c << 32) + cR;
-
-	return c;
+	return (uint64_t)(((uint64_t)cL << 32) | cR);
 }
 
 /**
@@ -239,10 +237,10 @@ uint64_t decode(uint64_t c, uint16_t * k)
 
 	// Konkatenation von 16 bit Schluesselpaaren zu einem Doppelwort.
 	// TODO: Entspricht die Konkatenation dem Paper-Ausdruck?
-	uint32_t k45 = wordsToUint32(k[5], k[4]);
-	uint32_t k67 = wordsToUint32(k[7], k[6]);
-	uint32_t k89 = wordsToUint32(k[9], k[8]);
-	uint32_t k1011 = wordsToUint32(k[11], k[10]);
+	uint32_t k45 = wordsToUint32(k[4], k[5]);
+	uint32_t k67 = wordsToUint32(k[6], k[7]);
+	uint32_t k89 = wordsToUint32(k[8], k[9]);
+	uint32_t k1011 = wordsToUint32(k[10], k[11]);
 
 	// Beginn der eigentlichen Dekodierung.
 	r[4] = cL ^ k89;
@@ -260,8 +258,5 @@ uint64_t decode(uint64_t c, uint16_t * k)
 	uint32_t pR = r[0] ^ pL ^ k45 ^ k67;
 
 	// Zusammenfuehrung der linken und rechten Plaintextblockhaelften.
-	uint64_t p = pL;
-	p = (p << 32) + pR;
-
-	return p;
+	return (uint64_t)(((uint64_t)pL << 32) | pR);
 }
