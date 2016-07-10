@@ -25,6 +25,16 @@ typedef enum {
 	N3 = 5
 } KeyConstantsIndex;
 
+typedef enum
+{
+	X0,
+	X1,
+	X2,
+	Y0,
+	Y1,
+	Y2
+} Variables;
+
 struct triplet{
 	uint32_t W;
 	uint32_t V0;
@@ -68,5 +78,7 @@ int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL, uint32_t 
 uint64_t linearDecode(uint64_t C, uint32_t *constants);
 uint64_t linearEncode(uint64_t P, uint32_t *constants);
 uint32_t *computeConstants(uint16_t *subkeys);
+uint32_t *getLinearEncodeVariables(uint64_t P, uint32_t *constants);
+uint32_t *getLinearDecodeVariables(uint64_t C, uint32_t *constants);
 
 #endif /* HEADER_ATTACK_H_ */

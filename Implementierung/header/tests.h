@@ -19,5 +19,6 @@ char *time_stamp();
 uint32_t getRandomUint32();
 
 void testGetSolutionsForXFrom3_7();
-
+void testIfWisInWSolutions();
+void testForStructPointer();
 #endif /* HEADER_TESTS_H_ */

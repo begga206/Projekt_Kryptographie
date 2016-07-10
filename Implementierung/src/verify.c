@@ -45,6 +45,18 @@ int verify(VerificationID id, int withOutput)
 		return verifyFunctionLinearEncode(withOutput);
 	case FUNCTION_LINEAR_DECODE:
 		return verifyFunctionLinearDecode(withOutput);
+	case FUNCTION_GET_LINEAR_ENCODE_VARIABLES:
+		return verifyFunctionGetLinearEncodeVariables(withOutput);
+	case FUNCTION_GET_LINEAR_DECODE_VARIABLES:
+		return verifyFunctionGetLinearDecodeVariables(withOutput);
+	case EQUATION_5_1:
+		return verifyEquation5_1(withOutput);
+	case EQUATION_5_2:
+		return verifyEquation5_2(withOutput);
+	case EQUATION_5_4:
+		return verifyEquation5_4(withOutput);
+	case EQUATION_5_5:
+		return verifyEquation5_5(withOutput);
 	default:
 		printf("Unknown ID.\n");
 		return 0;
@@ -465,4 +477,303 @@ int verifyFunctionLinearDecode(int withOutput)
 	}
 
 	return isEqual;
+}
+
+int verifyFunctionGetLinearEncodeVariables(int withOutput)
+{
+	// Testschlüssel
+	uint64_t key = 0xFF00FF00FF00FF00;
+
+	// Zuerst werden die 12 16 bit subkeys errechnet
+	uint16_t *subkeys = compSubKeys(key);
+
+	// Danach werden 20 Plaintexte nach der Definition aus dem Paper erzeugt.
+	uint64_t *P = choosePlainTexts();
+
+	// Allokiere Speicher fuer die Ciphertextbloecke und wende das FEAL-
+	// Verfahren zur Verschluesselung an.
+	uint64_t C[20];
+	for(int i = 0; i < 20; ++i)
+	{
+		C[i] = encode(P[i], subkeys);
+	}
+
+	// Berechne die 6 32-bit Schluesselabhaengigen Konstanten (2.6).
+	uint32_t *constants = computeConstants(subkeys);
+
+	// Verschluessel mit Hilfe der Konstanten die 20 Plaintextbloecke und
+	// vergleiche, ob sie mit den urspruenglichen Ciphertextbloecken ueber-
+	// einstimmen.
+	uint64_t linearEncoded[20];
+	uint32_t *variables;
+	int isEqual = 1;
+	for(int i = 0; i < 20; ++i)
+	{
+		variables = getLinearEncodeVariables(P[i], constants);
+		uint32_t CL = variables[Y2] ^ constants[N3];
+		uint32_t CR = variables[X2] ^ constants[M3] ^ CL;
+		//TODO: Testen auf Gleichung (5.1)
+		linearEncoded[i] = (uint64_t)(((uint64_t)CL << 32) | CR);
+		if(linearEncoded[i] != C[i])
+		{
+			isEqual = 0;
+		}
+		if(withOutput)
+		{
+			printf("Urspruenglicher Ciphertext: 0x%" PRIx64 "\t", C[i]);
+			printf("\"linearer\" Ciphertext: 0x%" PRIx64 "\n", linearEncoded[i]);
+		}
+	}
+
+	return isEqual;
+}
+
+int verifyFunctionGetLinearDecodeVariables(int withOutput)
+{
+	// Testschlüssel
+	uint64_t key = 0xFF00FF00FF00FF00;
+
+	// Zuerst werden die 12 16 bit subkeys errechnet
+	uint16_t *subkeys = compSubKeys(key);
+
+	// Danach werden 20 Plaintexte nach der Definition aus dem Paper erzeugt.
+	uint64_t *P = choosePlainTexts();
+
+	// Allokiere Speicher fuer die Ciphertextbloecke und wende das FEAL-
+	// Verfahren zur Verschluesselung an.
+	uint64_t *C = malloc(20 * sizeof(uint64_t));
+	for(int i = 0; i < 20; ++i)
+	{
+		C[i] = encode(P[i], subkeys);
+	}
+
+	// Berechne die 6 32-bit Schluesselabhaengigen Konstanten (2.6).
+	uint32_t *constants = computeConstants(subkeys);
+
+	// Entschluessel mit Hilfe der Konstanten die 20 Ciphertextbloecke und
+	// vergleiche, ob sie mit den urspruenglichen Plaintextbloecken ueber-
+	// einstimmen.
+	uint64_t decodedP[20];
+	uint64_t linearDecodedP[20];
+	uint32_t *variables;
+	int isEqual = 1;
+	for(int i = 0; i < 20; ++i)
+	{
+		variables = getLinearDecodeVariables(C[i], constants);
+		uint32_t PL = constants[M1] ^ variables[X0];
+		uint32_t PR = variables[Y0] ^ PL ^ constants[N1];
+		//TODO: Testen auf Gleichung (5.1)
+		decodedP[i] = decode(C[i], subkeys);
+		linearDecodedP[i] = (uint64_t)(((uint64_t)PL << 32) | PR);
+		if(linearDecodedP[i] != P[i])
+		{
+			isEqual = 0;
+		}
+		if(withOutput)
+		{
+			printf("Urspruenglicher Plaintext: 0x%" PRIx64 "\t", P[i]);
+			printf("Dekodierter Plaintext: 0x%" PRIx64 "\n", decodedP[i]);
+			printf("\"linear\" Dekodierter Plaintext: 0x%" PRIx64 "\n", linearDecodedP[i]);
+		}
+	}
+
+	return isEqual;
+}
+
+
+int verifyEquation5_1(int withOutput)
+{
+	// Testschlüssel
+	uint64_t key = 0xFF00FF00FF00FF00;
+
+	// Zuerst werden die 12 16 bit subkeys errechnet
+	uint16_t *subkeys = compSubKeys(key);
+
+	// Danach werden 20 Plaintexte nach der Definition aus dem Paper erzeugt.
+	uint64_t *P = choosePlainTexts();
+
+	// Allokiere Speicher fuer die Ciphertextbloecke und wende das FEAL-
+	// Verfahren zur Verschluesselung an.
+	uint64_t *C = malloc(20 * sizeof(uint64_t));
+	for(int i = 0; i < 20; ++i)
+	{
+		C[i] = encode(P[i], subkeys);
+	}
+
+	// Berechne die 6 32-bit Schluesselabhaengigen Konstanten (2.6).
+	uint32_t *constants = computeConstants(subkeys);
+
+	int ret = 1;
+	// Fuer jeden Textblock, ueberpruefe, ob Gleichung (5.1) stimmt.
+	for(int i = 0; i < 20; ++i)
+	{
+		uint32_t CL = (uint32_t)(C[i] >> 32);
+		uint32_t CR = (uint32_t)(C[i] & 0x00000000FFFFFFFF);
+		uint32_t PL = (uint32_t)(P[i] >> 32);
+		uint32_t D  = CL ^ CR;
+
+		uint32_t *variables = getLinearEncodeVariables(P[i], constants);
+
+		uint32_t part1 = variables[Y0] ^ G(variables[X1]);
+		uint32_t part2 = variables[Y0] ^ G(variables[X0] ^ G(variables[Y0]));
+		uint32_t part3 = variables[Y0] ^ G(PL ^ constants[M1] ^ G(variables[Y0]));
+		uint32_t part4 = variables[Y2] ^ G(variables[X2] ^ constants[N2]);
+		uint32_t part5 = CL ^ constants[N3] ^ G(D ^ constants[M3] ^ constants[N2]);
+
+		if(withOutput)
+		{
+			printf("Y1 = 0x%"PRIx32" = 0x%"PRIx32" = 0x%"PRIx32" = 0x%"PRIx32" = 0x%"PRIx32" = 0x%"PRIx32"\n",
+					variables[Y1], part1, part2, part3, part4, part5);
+		}
+		if(variables[Y1] != part1 || variables[Y1] != part2 || variables[Y1] != part3 || variables[Y1] != part4 ||
+				variables[Y1] != part4 || variables[Y1] != part5)
+			ret = 0;
+	}
+	return ret;
+}
+
+int verifyEquation5_2(int withOutput)
+{
+	// Testschlüssel
+	uint64_t key = 0xFF00FF00FF00FF00;
+
+	// Zuerst werden die 12 16 bit subkeys errechnet
+	uint16_t *subkeys = compSubKeys(key);
+
+	// Danach werden 20 Plaintexte nach der Definition aus dem Paper erzeugt.
+	uint64_t *P = choosePlainTexts();
+
+	// Allokiere Speicher fuer die Ciphertextbloecke und wende das FEAL-
+	// Verfahren zur Verschluesselung an.
+	uint64_t *C = malloc(20 * sizeof(uint64_t));
+	for(int i = 0; i < 20; ++i)
+	{
+		C[i] = encode(P[i], subkeys);
+	}
+
+	// Berechne die 6 32-bit Schluesselabhaengigen Konstanten (2.6).
+	uint32_t *constants = computeConstants(subkeys);
+
+	int ret = 1;
+	// Fuer jeden Textblock, ueberpruefe, ob Gleichung (5.2) stimmt.
+	for(int i = 0; i < 20; ++i)
+	{
+		uint32_t CL = (uint32_t)(C[i] >> 32);
+		uint32_t CR = (uint32_t)(C[i] & 0x00000000FFFFFFFF);
+		uint32_t PL = (uint32_t)(P[i] >> 32);
+		uint32_t D  = CL ^ CR;
+
+		uint32_t *variables = getLinearEncodeVariables(P[i], constants);
+
+		uint32_t part1 = CL ^ (variables[Y0] ^ constants[N3]) ^ G(PL ^ (constants[M1] ^ G(variables[Y0]))) ^
+				G(D ^ (constants[M3] ^ constants[N2]));
+
+		if(withOutput)
+		{
+			printf("0x%"PRIx32"==0 \n", part1);
+		}
+		if(part1 != 0)
+			ret = 0;
+	}
+	return ret;
+}
+
+int verifyEquation5_4(int withOutput)
+{
+	// Testschlüssel
+	uint64_t key = 0xFF00FF00FF00FF00;
+
+	// Zuerst werden die 12 16 bit subkeys errechnet
+	uint16_t *subkeys = compSubKeys(key);
+
+	// Danach werden 20 Plaintexte nach der Definition aus dem Paper erzeugt.
+	uint64_t *P = choosePlainTexts();
+
+	// Allokiere Speicher fuer die Ciphertextbloecke und wende das FEAL-
+	// Verfahren zur Verschluesselung an.
+	uint64_t *C = malloc(20 * sizeof(uint64_t));
+	for(int i = 0; i < 20; ++i)
+	{
+		C[i] = encode(P[i], subkeys);
+	}
+
+	// Berechne die 6 32-bit Schluesselabhaengigen Konstanten (2.6).
+	uint32_t *constants = computeConstants(subkeys);
+
+	int ret = 1;
+	// Fuer jeden Textblock, ueberpruefe, ob Gleichung (5.4) stimmt.
+	for(int i = 0; i < 20; ++i)
+	{
+		uint32_t CL = (uint32_t)(C[i] >> 32);
+		uint32_t CR = (uint32_t)(C[i] & 0x00000000FFFFFFFF);
+		uint32_t PL = (uint32_t)(P[i] >> 32);
+		uint32_t D  = CL ^ CR;
+
+		uint32_t *variables = getLinearEncodeVariables(P[i], constants);
+
+		uint32_t U = variables[Y0] ^ constants[N3];
+		uint32_t V = constants[M1] ^ G(variables[Y0]);
+		uint32_t W = constants[M3] ^ constants[N2];
+
+		uint32_t part1 = CL ^ U ^ G(PL ^ V) ^ G(D ^ W);
+
+		if(withOutput)
+		{
+			printf("0x%"PRIx32"==0 \n", part1);
+		}
+		if(part1 != 0)
+			ret = 0;
+	}
+	return ret;
+}
+
+int verifyEquation5_5(int withOutput)
+{
+	// Testschlüssel
+	uint64_t key = 0xFF00FF00FF00FF00;
+
+	// Zuerst werden die 12 16 bit subkeys errechnet
+	uint16_t *subkeys = compSubKeys(key);
+
+	// Danach werden 20 Plaintexte nach der Definition aus dem Paper erzeugt.
+	uint64_t *P = choosePlainTexts();
+
+	// Allokiere Speicher fuer die Ciphertextbloecke und wende das FEAL-
+	// Verfahren zur Verschluesselung an.
+	uint64_t *C = malloc(20 * sizeof(uint64_t));
+	for(int i = 0; i < 20; ++i)
+	{
+		C[i] = encode(P[i], subkeys);
+	}
+
+	// Berechne die 6 32-bit Schluesselabhaengigen Konstanten (2.6).
+	uint32_t *constants = computeConstants(subkeys);
+
+	int ret = 1;
+
+	// Variablen von 0. Textblock beziehen
+	uint32_t *variables = getLinearEncodeVariables(P[0], constants);
+
+	uint32_t U0 = variables[Y0] ^ constants[N3];
+	uint32_t V0 = constants[M1] ^ G(variables[Y0]);
+	uint32_t W = constants[M3] ^ constants[N2];
+
+	// Fuer jeden Textblock, ueberpruefe, ob Gleichung (5.5) stimmt.
+	for(int i = 0; i < 12; ++i)
+	{
+		uint32_t CL = (uint32_t)(C[i] >> 32);
+		uint32_t CR = (uint32_t)(C[i] & 0x00000000FFFFFFFF);
+		uint32_t PL = (uint32_t)(P[i] >> 32);
+		uint32_t D  = CL ^ CR;
+
+		uint32_t part1 = CL ^ U0 ^ G(PL ^ V0) ^ G(D ^ W);
+
+		if(withOutput)
+		{
+			printf("0x%"PRIx32"==0 \n", part1);
+		}
+		if(part1 != 0)
+			ret = 0;
+	}
+	return ret;
 }

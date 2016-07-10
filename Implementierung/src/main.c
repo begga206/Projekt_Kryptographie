@@ -23,7 +23,8 @@ int main(void)
 {
 
 	// An dieser Stelle koennen verschiedene Verifikationen aufgerufen werden.
-	if(verify(FUNCTION_COMP_CONSTANTS, 1))
+	/*
+	if(verify(EQUATION_5_5, 1))
 	{
 		printf("Erfolgreich verifiziert.\n");
 	}
@@ -31,6 +32,8 @@ int main(void)
 	{
 		printf("Nicht verifiziert.\n");
 	}
+	*/
+	testIfWisInWSolutions();
 	return 0;
 }
 

@@ -44,31 +44,31 @@ uint64_t *choosePlainTexts()
 
 	// (1) Choose P0,12,14,16,17,18,19 randomly.
 	srand(time(0));
-	P[0]   = ((uint64_t)rand() << 48)+ ((uint64_t)rand() << 32) +
-			((uint32_t)rand() << 16) + ((uint32_t)rand());
-	P[12]  = ((uint64_t)rand() << 48)+ ((uint64_t)rand() << 32) +
-			((uint32_t)rand() << 16) + ((uint32_t)rand());
-	P[14]  = ((uint64_t)rand() << 48)+ ((uint64_t)rand() << 32) +
-			((uint32_t)rand() << 16) + ((uint32_t)rand());
-	P[16]  = ((uint64_t)rand() << 48)+ ((uint64_t)rand() << 32) +
-			((uint32_t)rand() << 16) + ((uint32_t)rand());
-	P[17]  = ((uint64_t)rand() << 48)+ ((uint64_t)rand() << 32) +
-			((uint32_t)rand() << 16) + ((uint32_t)rand());
-	P[18]  = ((uint64_t)rand() << 48)+ ((uint64_t)rand() << 32) +
-			((uint32_t)rand() << 16) + ((uint32_t)rand());
-	P[19]  = ((uint64_t)rand() << 48)+ ((uint64_t)rand() << 32) +
-			((uint32_t)rand() << 16) + ((uint32_t)rand());
+	P[0]   = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
+	P[12]  = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
+	P[14]  = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
+	P[16]  = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
+	P[17]  = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
+	P[18]  = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
+	P[19]  = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
 
 	// (2) Choose P5_L, 6, 7, 8, 9, 10, 11, 13, 15 randomly.
-	P[5]  = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[6]  = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[7]  = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[8]  = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[9]  = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[10] = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[11] = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[13] = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
-	P[15] = (uint64_t)(((uint32_t)rand() << 16) + rand()) << 32;
+	P[5]  = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[6]  = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[7]  = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[8]  = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[9]  = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[10] = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[11] = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[13] = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
+	P[15] = (uint64_t)(((uint32_t)rand() << 16) ^ rand()) << 32;
 
 
 	// (3) Define P1_L, P2_L, P3_L, P4_L.
@@ -512,13 +512,20 @@ uint32_t *attack(uint64_t *P, uint64_t *C)
 
 	int wSolutionCount = getSolutionsForXFrom3_7(D[0], D[1], D[2], dDWord, eDWord, &wSolutions);
 	printf("Found Solutions for w.\n");
-
+	for(int i = 0; i < wSolutionCount; ++i)
+	{
+		printf("0x%" PRIx32 "\n", wSolutions[i]);
+	}
 	// Finde alle W, die die Gleichungen (5.9) erkennen.
 
 	printf("Finde alle W, die (5.9) erfuellen.\n");
 	wSolutionCount = getSolutionsFor5_9(D[0], D[3], D[4], (uint32_t)(C[0] >> 32),
 			(uint32_t)(C[3] >> 32),(uint32_t)(C[4] >> 32), &wSolutions, wSolutionCount);
-	printf("Alle Ws gefunden.\n");
+	printf("Alle Ws gefunden:\n");
+	for(int i = 0; i < wSolutionCount; ++i)
+	{
+		printf("0x%" PRIx32 "\n", wSolutions[i]);
+	}
 	// Finde fue jeden W Wert Loesungen fuer V0 mit Hilfe von (5.10)
 	uint32_t *v0Solutions = NULL;
 	uint32_t *tmpSolutions = NULL;
@@ -765,14 +772,14 @@ uint64_t linearEncode(uint64_t P, uint32_t *constants)
 	uint32_t PL = (uint32_t)(P >> 32);
 	uint32_t PR = (uint32_t)(P & 0x00000000FFFFFFFF);
 
-	uint32_t X0 = PL ^ constants[M1];
-	uint32_t Y0 = PL ^ PR ^ constants[N1];
-	uint32_t X1 = X0 ^ G(Y0);
-	uint32_t Y1 = Y0 ^ G(X1);
-	uint32_t X2 = X1 ^ G(Y1 ^ constants[M2]);
-	uint32_t Y2 = Y1 ^ G(X2 ^ constants[N2]);
-	uint32_t CL = Y2 ^ constants[N3];
-	uint32_t CR = X2 ^ constants[M3] ^ CL;
+	uint32_t x0 = PL ^ constants[M1];
+	uint32_t y0 = PL ^ PR ^ constants[N1];
+	uint32_t x1 = x0 ^ G(y0);
+	uint32_t y1 = y0 ^ G(x1);
+	uint32_t x2 = x1 ^ G(y1 ^ constants[M2]);
+	uint32_t y2 = y1 ^ G(x2 ^ constants[N2]);
+	uint32_t CL = y2 ^ constants[N3];
+	uint32_t CR = x2 ^ constants[M3] ^ CL;
 
 	return (uint64_t)(((uint64_t)CL << 32) | CR);
 }
@@ -790,14 +797,62 @@ uint64_t linearDecode(uint64_t C, uint32_t *constants)
 	uint32_t CL = (uint32_t)(C >> 32);
 	uint32_t CR = (uint32_t)(C & 0x00000000FFFFFFFF);
 
-	uint32_t X2 = constants[M3] ^ CL ^ CR;
-	uint32_t Y2 = CL ^ constants[N3];
-	uint32_t Y1 = G(X2 ^ constants[N2]) ^ Y2;
-	uint32_t X1 = G(Y1 ^ constants[M2]) ^ X2;
-	uint32_t Y0 = G(X1) ^ Y1;
-	uint32_t X0 = G(Y0) ^ X1;
-	uint32_t PL = constants[M1] ^ X0;
-	uint32_t PR = Y0 ^ PL ^ constants[N1];
+	uint32_t x2 = constants[M3] ^ CL ^ CR;
+	uint32_t y2 = CL ^ constants[N3];
+	uint32_t y1 = G(x2 ^ constants[N2]) ^ y2;
+	uint32_t x1 = G(y1 ^ constants[M2]) ^ x2;
+	uint32_t y0 = G(x1) ^ y1;
+	uint32_t x0 = G(y0) ^ x1;
+	uint32_t PL = constants[M1] ^ x0;
+	uint32_t PR = y0 ^ PL ^ constants[N1];
 
 	return (uint64_t)(((uint64_t)PL << 32) | PR);
+}
+
+uint32_t *getLinearEncodeVariables(uint64_t P, uint32_t *constants)
+{
+	uint32_t *variables = malloc(6 * sizeof(uint32_t));
+
+	uint32_t PL = (uint32_t)(P >> 32);
+	uint32_t PR = (uint32_t)(P & 0x00000000FFFFFFFF);
+
+	uint32_t x0 = PL ^ constants[M1];
+	uint32_t y0 = PL ^ PR ^ constants[N1];
+	uint32_t x1 = x0 ^ G(y0);
+	uint32_t y1 = y0 ^ G(x1);
+	uint32_t x2 = x1 ^ G(y1 ^ constants[M2]);
+	uint32_t y2 = y1 ^ G(x2 ^ constants[N2]);
+
+	variables[X0] = x0;
+	variables[X1] = x1;
+	variables[X2] = x2;
+	variables[Y0] = y0;
+	variables[Y1] = y1;
+	variables[Y2] = y2;
+
+	return variables;
+}
+
+uint32_t *getLinearDecodeVariables(uint64_t C, uint32_t *constants)
+{
+	uint32_t *variables = malloc(6 * sizeof(uint32_t));
+
+	uint32_t CL = (uint32_t)(C >> 32);
+	uint32_t CR = (uint32_t)(C & 0x00000000FFFFFFFF);
+
+	uint32_t x2 = constants[M3] ^ CL ^ CR;
+	uint32_t y2 = CL ^ constants[N3];
+	uint32_t y1 = G(x2 ^ constants[N2]) ^ y2;
+	uint32_t x1 = G(y1 ^ constants[M2]) ^ x2;
+	uint32_t y0 = G(x1) ^ y1;
+	uint32_t x0 = G(y0) ^ x1;
+
+	variables[X0] = x0;
+	variables[X1] = x1;
+	variables[X2] = x2;
+	variables[Y0] = y0;
+	variables[Y1] = y1;
+	variables[Y2] = y2;
+
+	return variables;
 }
