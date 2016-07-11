@@ -33,7 +33,21 @@ int main(void)
 		printf("Nicht verifiziert.\n");
 	}
 	*/
-	testIfWisInWSolutions();
+	newAttack();
+	//possible V14: 0x5c7e16d6 CL[15]: 0xbaa2f196 U[15]: 0x2881821f
+	//PL[15]: 0x64283bcf D[15]: 0x87a52799 W: 0x1b7332ca
+	/*
+	uint32_t V14  = 0x5c7e16d6;
+	uint32_t CL15 = 0xbaa2f196;
+	uint32_t U15  = 0x2881821f;
+	uint32_t PL15 = 0x64283bcf;
+	uint32_t D15  = 0x87a52799;
+	uint32_t W    = 0x1b7332ca;
+
+	uint32_t result = CL15 ^ U15 ^ G(PL15 ^ V14) ^ G(D15 ^ W);
+	printf("0x%" PRIx32"\n", result);
+	*/
+
 	return 0;
 }
 

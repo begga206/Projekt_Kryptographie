@@ -37,7 +37,8 @@ typedef enum {
 	EQUATION_5_1,
 	EQUATION_5_2,
 	EQUATION_5_4,
-	EQUATION_5_5
+	EQUATION_5_5,
+	FUNCTION_GET_SOLUTIONS_FOR_X_FROM_3_1
 }VerificationID;
 
 int verify(VerificationID id, int withOutput);
@@ -62,5 +63,6 @@ int verifyEquation5_1(int withOutput);
 int verifyEquation5_2(int withOutput);
 int verifyEquation5_4(int withOutput);
 int verifyEquation5_5(int withOutput);
+int verifyFunctionGetSolutionsForXFrom3_1(int withOutput);
 
 #endif /* HEADER_VERIFY_H_ */

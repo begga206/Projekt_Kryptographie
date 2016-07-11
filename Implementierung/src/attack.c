@@ -85,7 +85,8 @@ uint64_t *choosePlainTexts()
 		P[i] |= (P[i] >> 32) ^ Q0;
 	}
 	P[13] |= (P[13] >> 32) ^ ((P[12] >> 32) ^(P[12] & 0x00000000FFFFFFFF));
-	P[15] |= (P[15] >> 32) ^ ((P[13] >> 32) ^(P[13] & 0x00000000FFFFFFFF));
+	//TODO: Mit Weber diskutieren, ob das Paper falsch ist!!!
+	P[15] |= (P[15] >> 32) ^ ((P[14] >> 32) ^(P[14] & 0x00000000FFFFFFFF));
 
 	return P;
 }
@@ -346,7 +347,7 @@ int getU0Solutions(uint32_t C0L, uint32_t P0L, uint32_t D0,uint32_t *wSolutions,
  *
  * @return 1, wenn erfuellt ; 0, wenn nicht
  */
-int doesStaisfy5_4(uint32_t CiL, uint32_t Ui, uint32_t PiL, uint32_t Vi, uint32_t Di , uint32_t W)
+int doesSatisfy5_4(uint32_t CiL, uint32_t Ui, uint32_t PiL, uint32_t Vi, uint32_t Di , uint32_t W)
 {
 	if(( CiL ^ Ui ^ G(PiL ^ Vi) ^ G(Di ^ W)) == 0)
 		return 1;
@@ -615,8 +616,8 @@ uint32_t *attack2(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t *Q, struct tri
 		{
 			for(int k = 0; k < V14SolutionsCount; ++k)
 			{
-				if(doesStaisfy5_4((uint32_t)(C[13] >> 32), U13, (uint32_t)(P[13] >> 32), V12Solutions[j], D[13], triplets[i].W) ||
-						doesStaisfy5_4((uint32_t)(C[15] >> 32), U15, (uint32_t)(P[15] >> 32), V12Solutions[k], D[15], triplets[i].W))
+				if(doesSatisfy5_4((uint32_t)(C[13] >> 32), U13, (uint32_t)(P[13] >> 32), V12Solutions[j], D[13], triplets[i].W) ||
+						doesSatisfy5_4((uint32_t)(C[15] >> 32), U15, (uint32_t)(P[15] >> 32), V14Solutions[k], D[15], triplets[i].W))
 				{
 					printf("Kalkuliere Schlüsselkonstanten.\n");
 					uint32_t *constants = calculateKeyConstants(C, P, D, Q, triplets[i], V12Solutions[j], V14Solutions[k]);
@@ -663,7 +664,7 @@ uint32_t *calculateKeyConstants(uint64_t *C, uint64_t *P, uint32_t *D, uint32_t 
 		// Errechne V16 und check, ob (5.4) erfuellt ist (TODO: Besprechen mit Juri)
 		uint32_t V16 = G(Q[0] ^ N1Solutions[i]) ^ G(Q[16] ^ N1Solutions[i]) ^ triplet.V0;
 		uint32_t U16 = triplet.U0 ^ Q[0] ^ Q[16];
-		if(!doesStaisfy5_4((uint32_t)(C[i] >> 32), U16, (uint32_t)(P[i] >> 32), V16, D[i], triplet.W))
+		if(!doesSatisfy5_4((uint32_t)(C[i] >> 32), U16, (uint32_t)(P[i] >> 32), V16, D[i], triplet.W))
 			continue;
 
 		// Wenn wir ein N1 haben koennen wir M1 und N3 errechnen.

@@ -57,6 +57,8 @@ int verify(VerificationID id, int withOutput)
 		return verifyEquation5_4(withOutput);
 	case EQUATION_5_5:
 		return verifyEquation5_5(withOutput);
+	case FUNCTION_GET_SOLUTIONS_FOR_X_FROM_3_1:
+		return verifyFunctionGetSolutionsForXFrom3_1(withOutput);
 	default:
 		printf("Unknown ID.\n");
 		return 0;
@@ -776,4 +778,24 @@ int verifyEquation5_5(int withOutput)
 			ret = 0;
 	}
 	return ret;
+}
+
+int verifyFunctionGetSolutionsForXFrom3_1(int withOutput)
+{
+	uint32_t x = 0x12345678;
+	uint32_t a = 0x9ABCDEF0;
+	uint32_t b = 0x32041066;
+
+	uint32_t *solutions = NULL;
+	uint32_t solutionsCount = getSolutionsForXFrom3_1(a, b, &solutions);
+	if(solutionsCount == 0)
+		return 0;
+	for(int i = 0; i < solutionsCount; ++i)
+	{
+		if(withOutput)
+			printf("0x%" PRIx32 "\n", solutions[i]);
+		if(solutions[i] == x)
+			return 1;
+	}
+	return 0;
 }
