@@ -1,1 +1,298 @@
 \section{Fallbeispiel}
+Wir werden nun ein Beispiel für die Attacke auf \emph{FEAL-4} mit 20
+Plaintextblöcken verfolgen. Dabei werden wir uns die gesamte Attacke über in der
+in Abschnitt \ref{subsection:ImplementierungAttacke} vorgestellten $attack()$
+Funktion befinden. Jeder wichtige Abschnitt der Attacke wird anhand eines
+Code-Ausschnitts der $attack()$ Funktion erläutert. Zusätzlich werden noch die
+bis zu diesen Zeitpunkt wichtigen gesammelten Komponenten zur
+Schlüsselkonstantenerzeugung aufgelistet.\par\bigskip
+Bevor die Attacke starten kann, müssen zunächst alle dafür benötigten
+Bestandteile gewählt werden. Zuerst muss ein 64 bit Schlüssel gewählt
+werden:\par
+\begin{lstlisting}[caption={Wahl des Schlüssels}]
+// Testschlüssel
+uint64_t key = 0xFF00FF00FF00FF00;
+\end{lstlisting}
+Danach wird aus dem Schlüssel die 12 16 bit Subschlüssel generiert:\par
+\begin{lstlisting}[caption={Generieren der Subschlüssel}]
+// Zuerst werden die 12 16 bit subkeys errechnet
+uint16_t *subkeys = compSubKeys(key);
+\end{lstlisting}
+Da bei der Attacke von 20 gewählten Plaintextblöcken und deren entsprechenden
+Ciphertextblöcken ausgegangen wird, müssen die Plaintexte gewählt und dann mit 
+Hilfe der Subschlüssel verschlüsselt werden:\par
+\begin{lstlisting}[caption={Generieren der Plain- und Ciphertextblöcke}]
+// Danach werden 20 Plaintexte nach der Definition aus dem Paper erzeugt.
+uint64_t *P = choosePlainTexts();
+
+// Allokiere Speicher fuer die Ciphertextbloecke und wende das
+//  FEAL-Verfahren zur Verschluesselung an.
+uint64_t *C = malloc(20 * sizeof(uint64_t));
+for(int i = 0; i < 20; ++i)
+{
+	C[i] = encode(P[i], subkeys);
+}
+\end{lstlisting}
+Da laut Definition der 19. und 20. Plaintextblock zufällig gewählt werden,
+wurden beide so gewählt, dass sie konkateniert den String 'FEAL is safe!!'
+repräsentieren. Am Ende unserer Attacke versuchen wir diesen String, durch
+Entschlüsseln des 19. und 20. Ciphertextblocks mittels unserer gefundenen
+Schlüsselkonstanten, wieder zu erlangen.\par\bigskip
+Zusätzlich müssen noch die $Q$-Werte für jeden Plaintextblock und $D$-Werte für
+jeden Ciphertextblock berechnet werden. Beide Werte repräsentieren eine xor
+Operation aus der linken und rechten Hälfte des entsprechenden Textblocks. Da
+die linken und rechten Hälften der Textblöcke im Laufe der Attacke noch häufiger
+verwendet werden, werden diese auch seperat abgespeichert:\par
+\begin{lstlisting}[caption={Speichern der Q- und D-Werte}]
+for(int i = 0; i < 20; ++i)
+{
+	CL[i] = (uint32_t)(C[i]>>32);
+	CR[i] = (uint32_t)(C[i]);
+	PL[i] = (uint32_t)(P[i]>>32);
+	PR[i] = (uint32_t)(P[i]);
+	D[i]  = CL[i] ^ CR[i];
+	Q[i]  = PL[i] ^ PR[i];
+}
+\end{lstlisting}
+Nun beginnt die wahre Attacke. An dieser Stelle wird nicht detailliert auf die
+entsprechenden Gleichung aus dem Paper\cite{attackePaper} eingegangen. Es werden
+lediglich im Paper vorhandene Nummer für die entsprechende Gleichung
+genannt. Dieses Fallbeispiel soll nur dazu dienen nachvollziehen zu können, wann
+nach welchen Werten gesucht wird, um in der Attacke voran zu
+schreiten. Für tieferen Einblick in die Zusammenhänge der einzelnen
+Komponenten empfehlen wir das Lesen der Quelle\cite{attackePaper}.\par\bigskip
+Wir beginnen die Attacke mit der Suche nach möglichen $W$ Werten. Die Gleichung
+(5.8) entspricht dem Format der Gleichung (3.7). Die entsprechende Funktion kann
+Lösungen für diese Form von Gleichungen liefern:\par
+\begin{lstlisting}[caption={Suche nach möglichen $W$ Werten}, label=lst:FindeW]
+// Finde W
+uint32_t d = CL[0] ^ CL[1] ^ 0x02000000;
+uint32_t e = CL[0] ^ CL[2] ^ 0x00000002;
+uint32_t *wSolutions = NULL;
+
+uint32_t wSolutionsCount = getSolutionsForXFrom3_7(D[0], D[1],
+ D[2], d, e, &wSolutions);
+wSolutionsCount = getSolutionsFor5_9(D[0], D[3], D[4], CL[0],
+ CL[3], CL[4], &wSolutions, wSolutionsCount);
+\end{lstlisting}
+Der zweite Funktionsaufruf in Codebeispiel \ref{lst:FindeW},
+$getSolutionsFor5\_9$, verkleinert die Anzahl an Lösungen für W, indem geprüft
+wird, ob die gefundenen $W$ Werte die Gleichungen (5.9) erfüllen. Die
+resultierende Ergebnismenge hat in der Regel bis zu zehn Lösungen für $W$. Der
+folgende Output sind die Werte, die in unserem Beispieldurchlauf gefunden
+wurden:\par
+\begin{verbatim}
+8 Solutions for W:
+0x1b73b24a
+0x1b73a25a
+0x1b7332ca
+0x1b7322da
+0x9bf3b24a
+0x9bf3a25a
+0x9bf332ca
+0x9bf322da
+\end{verbatim}
+Als nächstes werden für jede gefundene Lösung für $W$ Lösungen für $V^0$
+gesucht. Dies geschieht mit Hilfe der Gleichungen (5.10), die wiederum der Form
+(3.7) entsprechen. Durch die Gleichung (5.5) für den ersten Plaintextblock kann
+dann ein Wert für $U^0$ aus den gefundenen $W$ und $V^0$ Kombinationen errechnet
+werden. Erfüllen diese nun die Gleichung (5.5) für die nächsten zehn
+Plaintextblöcke, so haben wir eine mögliche Lösung für unser $U^0,V^0,W$
+Tripel:\par
+\begin{lstlisting}[caption={Suche nach möglichen Tripeln}]
+// Finde V0
+uint32_t *v0Solutions;
+uint32_t v0SolutionCount;
+struct triplet *triplets = NULL;
+int tripletsCount = 0;
+
+for(int i = 0; i < wSolutionsCount; ++i)
+{
+	d = CL[0] ^ CL[5] ^ G(D[0] ^ wSolutions[i]) ^ G(D[5] ^ 
+		wSolutions[i]);
+	e = CL[0] ^ CL[6] ^ G(D[0] ^ wSolutions[i]) ^ G(D[6] ^ 
+		wSolutions[i]);
+	v0SolutionCount  = getSolutionsForXFrom3_7(PL[0], PL[5], PL[6],
+	 	d, e, &v0Solutions);
+
+	triplets = realloc(triplets, (tripletsCount + v0SolutionCount) *
+			sizeof(struct triplet));
+	for(int j = 0; j < v0SolutionCount; ++j)
+	{
+		// Berechne dazugehöriges U0 (= CL0 ^ G(PL0 ^ V0) ^ G(D0 ^ W))
+		struct triplet triple = getTripletFrom5_5(CL[0], PL[0],
+				v0Solutions[j], D[0], wSolutions[i]);
+
+		// Adde nur die Tripel, die fuer die anderen Plaintexte (5.5)
+		// erfuellen
+		if(doesSatisfy5_5ForOtherPlaintexts(triple, PL, CL, D))
+		{
+			triplets[tripletsCount] = triple;
+			tripletsCount++;
+		}
+	}
+}
+\end{lstlisting}
+In unserem Durchlauf wurden die folgenden Tripellösungen gefunden:\par
+\begin{verbatim}
+16 Solutions for Triplets:
+U0: 0xd72bf37 V0: 0x4fc3d634 W: 0x1b73b24a
+U0: 0xd72bf35 V0: 0x4fc356b4 W: 0x1b73b24a
+U0: 0xf72bf37 V0: 0xcf43d634 W: 0x1b73b24a
+U0: 0xf72bf35 V0: 0xcf4356b4 W: 0x1b73b24a
+U0: 0xd72bf35 V0: 0x4fc3d634 W: 0x1b7332ca
+U0: 0xd72bf37 V0: 0x4fc356b4 W: 0x1b7332ca
+U0: 0xf72bf35 V0: 0xcf43d634 W: 0x1b7332ca
+U0: 0xf72bf37 V0: 0xcf4356b4 W: 0x1b7332ca
+\end{verbatim}\newpage
+Im nächsten Schritt versuchen wir die $U$ und $V$ Werte für die Plaintextblöcke
+12, 13, 14 und 15 zu finden. $U^{12}$ und $U^{14}$ lassen sich dabei einfach
+anhand der Gleichungen (5.11) berechnen. Zusätzlich zu (5.11) kann man durch (4.4)
+darauf schließen, dass $U^{12}=U^{13}$ und $U^{14}=U^{15}$ ist. Durch die
+errechneten $U$ Werte und die Gleichungen (5.12), die die Form (3.1) besitzen,
+lassen sich Lösungen für $V^{12}$ und $V^{14}$ finden:\par
+\begin{lstlisting}[caption={Lösungen für $V^{12}$ und $V^{14}$}]
+for(int i = 0; i < tripletsCount; ++i)
+{
+	uint32_t U12 = triplets[i].U0 ^ Q[0] ^ Q[12];
+	uint32_t U13 = U12;
+	uint32_t U14 = triplets[i].U0 ^ Q[0] ^ Q[14];
+	uint32_t U15 = U14;
+
+	uint32_t *V12Solutions = NULL;
+	int V12SolutionsCount = getSolutionsForXFrom3_1(PL[12], G(D[12] ^
+			triplets[i].W) ^ CL[12] ^ U12, &V12Solutions);
+	uint32_t *V14Solutions = NULL;
+	int V14SolutionsCount = getSolutionsForXFrom3_1(PL[14], G(D[14] ^
+			triplets[i].W) ^ CL[14] ^ U14, &V14Solutions);
+\end{lstlisting}
+Genau so wie bei $U$, sollte auch $V^{12}=V^{13}$ und $V^{14}=V^{15}$ sein. Für
+jedes $V^{12}$ und $V^{14}$ kann mit der Gleichung (5.4) geprüft werden, ob
+diese Bedingung zutrifft. Erfüllen beide die Gleichung, so können mit den
+gesammelten Werten die Schlüsselkonstanten errechnet werden:\par
+\begin{lstlisting}[caption={Prüfen, ob $V^{12},V^{14}$ (5.4) erfüllen}]
+for(int j = 0; j < V12SolutionsCount; ++j)
+{
+	if(doesSatisfy5_4(CL[13], U13, PL[13], V12Solutions[j], D[13],
+			triplets[i].W))
+	{
+		for(int k = 0; k < V14SolutionsCount; ++k)
+		{
+			if(doesSatisfy5_4(CL[15], U15, PL[15], V14Solutions[k],
+					D[15], triplets[i].W))
+			{
+				//U, V fuer Plaintextbloecke 0-15 speichern
+				uint32_t *U = malloc(20 * sizeof(uint32_t));
+				uint32_t *V = malloc(20 * sizeof(uint32_t));
+				for(int l = 0; l < 12; ++l)
+				{
+					U[l] = triplets[i].U0;
+					V[l] = triplets[i].V0;
+				}
+				U[12] = U12; U[13] = U13; U[14] = U14; U[15] = U15;
+				V[12] = V12Solutions[j];
+				V[13] = V12Solutions[j];
+				V[14] = V14Solutions[k];
+				V[15] = V14Solutions[k];
+				// Key Konstanten berechnen.
+				uint32_t *calculatedKeyConstants =
+						calculateKeyConstants(PL,PR,CL,CR,Q,D,U,V,
+								triplets[i].W);
+\end{lstlisting}
+Zur Berechnung der 6 Schlüsselkonstanten gehen wir wie folgt vor. Zuerst finden
+wir anhand der Gleichung (5.13) Lösungen für $N_1$. Wir berechnen mittels der
+Struktur von Gleichung (5.13) $V^{16}$ und $U^{16}$. Wenn diese Werte die
+Gleichung (5.4) erfüllen, behalten wir diese Lösung für $N_1$:\par
+\begin{lstlisting}[caption={Finde Lösungen für $N_1$}]
+// Finde Loesungen fuer N1
+uint32_t *N1Solutions = NULL;
+uint32_t N1SolutionsCount = getSolutionsForXFrom3_7(Q[0],Q[12],
+	Q[14],V[0] ^ V[12], V[0] ^ V[14], &N1Solutions);
+
+for(int i = 0; i < N1SolutionsCount; ++i)
+{
+	// Berechne V16. Entspricht der Struktur von (5.13)
+	// nach V16 aufgeloest.
+	uint32_t V16 = G(Q[0] ^ N1Solutions[i]) ^ G(Q[16] ^ 
+	N1Solutions[i]) ^ V[0];
+	uint32_t U16 = U[0] ^ Q[0] ^ Q[16];
+	// Ueberpruefe, ob (5.4) mit V16 erfuellt ist.
+	if(!doesSatisfy5_4(CL[16],U16,PL[16],V16,D[16],W))
+		continue;
+\end{lstlisting}
+Anhand von $N_1$ lassen sich die Werte für $M_1$ und $N_3$  wie
+folgt errechnen:\par 
+\begin{lstlisting}[caption={Berechnen von $M_1$ und $N_3$}]
+	// Mittels N1 lassen sich M1 und N3 errechnen.
+	uint32_t y0 = Q[0] ^ N1Solutions[i];
+	uint32_t m1 = V[0] ^ G(y0);
+	uint32_t n3 = y0 ^ U[0];
+\end{lstlisting}
+Wir berechnen nun die $X_1$ und $Y_1$ Werte für die Plaintexte 0, 17 und 18.
+Mit diesen Werten kann man durch die Gleichungen (5.15) Lösungen für $M_2$
+finden:\par
+\begin{lstlisting}[caption={Finden von Lösungen für $M_2$}]
+		// Finde Loesungen fuer M2.
+		uint32_t x1_0  = PL[0] ^ m1 ^ G(y0);
+		uint32_t x1_17 = PL[17] ^ m1 ^ G(Q[17] ^ N1Solutions[i]);
+		uint32_t x1_18 = PL[18] ^ m1 ^ G(Q[18] ^ N1Solutions[i]);
+		uint32_t y1_0  = y0 ^ G(x1_0);
+		uint32_t y1_17 = Q[17] ^ N1Solutions[i] ^ G(x1_17);
+		uint32_t y1_18 = Q[18] ^ N1Solutions[i] ^ G(x1_18);
+
+		uint32_t d = x1_0 ^ x1_17 ^ D[0] ^ D[17];
+		uint32_t e = x1_0 ^ x1_18 ^ D[0] ^ D[18];
+
+		uint32_t *M2Solutions = NULL;
+		int M2SolutionsCount = getSolutionsForXFrom3_7(y1_0,y1_17,
+			y1_18,d,e,&M2Solutions);
+\end{lstlisting}
+Als nächstes prüfen wir für jedes mögliche $M_2$, ob die äußeren 16 bit null
+sind. Ist dies der Fall, errechnen wir mit dem $M_2$ Wert drei verschiedene
+Werte für $M_3$ aus. Da $M_3$ eine Konstante ist, sollten alle drei Werte
+übereinstimmen:\par
+\begin{lstlisting}[caption={Berechnen von $M_3$}]
+for(int j = 0; j < M2SolutionsCount; ++j)
+{
+	// Check, ob die auesseren 16 bit 0 sind.
+	if((M2Solutions[j] & 0xFF0000FF) != 0)
+		continue;
+
+	// Mit Hilfe von M2 drei Werte fuer M3 schreiben, 
+	// die uebereinstimmen sollten.
+	uint32_t x2_0  = x1_0 ^ G(y1_0 ^ M2Solutions[j]);
+	uint32_t x2_17 = x1_17 ^ G(y1_17 ^ M2Solutions[j]);
+	uint32_t x2_18 = x1_18 ^ G(y1_18 ^ M2Solutions[j]);
+	uint32_t m3_0  = D[0] ^ x2_0;
+	uint32_t m3_17 = D[17] ^ x2_17;
+	uint32_t m3_18 = D[18] ^ x2_18;
+
+	if((m3_0 != m3_17) || (m3_17 != m3_18))
+		continue;
+\end{lstlisting}
+Nun fehlt nur noch die Schlüsselkonstante $N_2$. Diese lässt sich mittels $W$
+und $M_3$ berechnen, wobei die äußeren 16 bit null sein sollten:\par
+\begin{lstlisting}[caption={Berchnen von $N_2$}]
+// N2 berechnen und pruefen, ob die aeusseren 16 Bit 0 sind.
+uint32_t n2 = W ^ m3_0;
+
+if((n2 & 0xFF0000FF) != 0)
+	continue;
+\end{lstlisting}
+Da jetzt alle Schlüsselkonstanten gefunden wurden, können wir versuchen unseren
+Text vom Anfang aus den letzten beiden Ciphertextblöcken wieder zu erlangen. Der
+folgende Output zeigt die gefundenen Schlüsselkonstanten im Vergleich mit den
+durch Wissen des Schlüssels errechneten, sowie der Dekodierung der letzten
+beiden Ciphertextblöcken:\par
+\begin{verbatim}
+Possible Key Constants:
+M1: 0x5621c0cc  Berechnet: 0x5621c0cc
+N1: 0xcc1ce1a   Berechnet: 0xcc1ce1a
+M2: 0x40ef00    Berechnet: 0x40ef00
+N2: 0x44f200    Berechnet: 0x44f200
+M3: 0x1b37c0ca  Berechnet: 0x1b37c0ca
+N3: 0xb227bb0   Berechnet: 0xb227bb0
+FEAL is safe!!
+\end{verbatim}
+Im nächsten Kapitel werden die Schwierigkeiten und Herausforderungen, die wir
+während des Projekts bewältigen mussten, erläutert.\par

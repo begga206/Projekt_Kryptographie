@@ -1,1 +1,402 @@
 \section{Implementierung}
+Im folgenden Abschnitt werden wir sowohl auf die Implementierung des FEAL-4
+Verfahren, als auch auf die der Attacke eingehen. Als Programmiersprache
+wurde C gewählt, da ein kompiliertes Programm eine höhere Performanz
+besitzt als zum Beispiel ein Java Programm, welches über einen Interpreter
+läuft.\par
+Die Software wurde in drei Teilkomponenten unterteilt. Einmal die
+FEAL Komponente, welche alle Funktionen besitzt, um die Funktionalität des
+FEAL Verfahrens bereitzustellen. Die nächste Komponente widmet sich ganz
+der Attacke, welche von Murphy beschrieben wurde. Abschließend gibt es noch
+eine Verifizierer Komponente. Diese dient zur Verfikation aller Funktionen,
+die in den beiden anderen Komponenten erstellt wurden.\par
+Bevor wir jedoch die einzelnen Komponenten uns im Detail betrachten, werden erst
+einige Grundkonventionen festgelegt. Diese dienen zur Vereinheitlichung und zum 
+besseren Nachvollziehen des Codes im Bezug auf das vorgegebene 
+Paper\cite{attackePaper}.\par\bigskip
+
+\subsection{Konventionen}
+Da Murphy in seinem Paper die meisten Funktionalitäten sowohl des FEAL, als
+auch des Attacke-Algorithmus als mathematische Funktionen dargestellt hat, ist
+der Übergang von der Theorie in die Implementierung verhältnisweise einfach. Um
+den Bezug auf die mathematischen Funktionen nicht zu verlieren, wurde die
+Mehrzahl der Variablennamen eins zu eins übertragen. Ausnahmen waren zum
+Beispiel die Bytevariablen eines gesplitteten Doppelwortes. Nehmen wir an eine
+32 bit Zahl hätte den Variablennamen \textit{a}. So haben in dem Paper die 4
+Teilbytes von \textit{a} einen zusätzlichen fortlaufenden Index, also
+\textit{a0, a1, a2, a3}. Unsere Implementierung realisiert eine gesplittete 32
+bit Zahl als Byte-Array der Länge 4 und behält dabei den Variablennamen aus dem
+Paper. Damit ähnelt ein Zugriff auf den entsprechenden Index im Array (z.B.
+\textit{a[1]}) dem aus dem Paper (\textit{a1}). Damit sich der Namensbereich des
+Arrays und der initialen 32 bit Zahl nicht überschneidet, wird der initialen
+Zahl ihre Größenbezeichnung an den Variablennamen des Papers angehangen. In
+unserem Beispiel hätte die \textit{UInt32} Repräsentation von \textit{a} also
+den Variablennamen \textit{aDWord}.\par
+Für erstellte Funktionen gelten die selben Namenskonventionen. Falls eine
+Funktion von Murphy explizit in einer mathematischen Repräsentierung vorhanden
+ist, wird der Name dieser Funktion übernommen. Beinhaltet der Funktionname einen 
+griechischen Buchstaben (z.B. $\theta$), so wird in der Implementierung der
+Buchstabe anhand des repräsentativen Wortes aus lateinischen Buchstaben
+ausgeschrieben (z.B. \textit{theta}). Wird eine Funktion nicht explizit im Paper
+genannt oder niedergeschrieben, so ist für sie ein adäquater Funktionsname, der
+die üblichen Programmierkonventionen einhält zu wählen.\par\bigskip
+
+\subsection{Implementierung explizit formulierter Funktionen}
+Wie bereits erwähnt werden die meisten Funktionen in dem Paper von Murphy
+explizit ausformuliert. Um besser nachvollziehen zu können, wie der
+Implementierungsprozess einer solchen Funktion abläuft, wird
+nun die Implementierung der Funktion \textit{f} aus dem
+Paper\cite{attackePaper} durchgeführt.\par
+Wir betrachten dabei zuerst folgenden Auszug, welcher die Definition von
+\textit{f} beinhaltet:\par\bigskip
+
+Now suppose that $a_i,c_i~\epsilon~Z^8_2$ for $i=$ 0,1,2,3, and also that
+$b_1,b_2~\epsilon~Z^8_2$, with $b=(b_1,b_2)~\epsilon~Z^{16}_2$ and
+$a=(a_0,a_1,a_2,a_3),c~\epsilon~Z^{32}_2$ etc., then we can define
+\begin{gather*}
+c = f(a,b)
+\end{gather*}
+as follows: 
+\begin{gather*}
+d_1 = a_0 \oplus a_1 \oplus b_1\\
+d_2 = a_2 \oplus a_3 \oplus b_2\\
+c_1 = S_1(d_1,d_2)\\
+c_2 = S_0(d_2,c_1)\\
+c_0 = S_0(a_0,c_1)\\
+c_3 = S_1(a_3,c_2)
+\end{gather*}
+Anhand dieser Definition lässt sich auf alle Eigenschaften unserer zu
+implementierenden Funktion schließen. Wir sehen, das $f$ die Parameter $a$ und
+$b$ besitzt, wobei $a$ definiert ist als Konkatenation von 4 Bytes und $b$ als
+eine Konkatenation von 2 Bytes. Des Weiteren können wir erkennen, das
+$f(a,b)=c$, wobei $c$ als 32 bit Zahl definiert ist. Durch diese Informationen
+lässt sich auf folgende Deklaration in C schließen:\par\bigskip
+\begin{lstlisting}[caption={Deklartation der Funktion $f$ in C}]
+ /**
+ * Implementierung der f Funktion aus dem Paper
+ *
+ * c = f(a, b)
+ *
+ * @param aDWord - a
+ * @param b		 - b
+ *
+ * @result c (32 bit)
+ */
+uint32_t f(uint32_t aDWord, uint16_t b);
+\end{lstlisting}
+Wir können in der Definition erkennen, das $a$ und $b$ nicht im Ganzen, sondern
+ihre jeweiligen Bytes verwendet werden. Das heißt, das bevor wir die Operationen
+aus der Definition implementieren, müssen wir eine Funktion aufrufen, die uns
+$a$ und $b$ in Bytes aufsplittet. Zudem müssen am Schluss die 4 Bytes
+$c0,c1,c2,c3$ zu dem Doppelwort $c$ zusammengefügt werden. Dies führt dann zu
+folgender Implementierung von $f$:
+\begin{lstlisting}[caption={Implementierung der Funktion $f$ in C},
+label=lst:fFunktion]
+uint32_t f(uint32_t aDWord, uint16_t b)
+{
+	uint8_t b2 = (uint8_t) b;
+	uint8_t b1 = (uint8_t)(b >> 8);
+	uint8_t a[4] = {0};
+	uint8_t c0, c1, c2, c3, d1, d2;
+
+	// Split a to a0, a1, a2, a3
+	splitToBytes(aDWord, a);
+
+	d1 = a[0] ^ a[1] ^ b1;
+	d2 = a[2] ^ a[3] ^ b2;
+	c1 = S(d1, d2, ONE);
+	c2 = S(d2, c1, ZERO);
+	c0 = S(a[0], c1, ZERO);
+	c3 = S(a[3], c2, ONE);
+
+	return bytesToUint32(c0, c1, c2, c3);
+}
+\end{lstlisting}
+Anhand dieser Vorgehensweise wurden alle weiteren explizit ausformulierten
+Funktionen implementiert. Vorallem die Implementierung des FEAL Verfahren wurde
+durch diese Vorgehensweise sehr vereinfacht. Interessant ist nun zu betrachten,
+wie die Attacke implementiert wurde.\par\bigskip
+
+\subsection{Implementierung der Attacke}
+\label{subsection:ImplementierungAttacke}
+In \emph{Krypto-Attacke auf den FEAL Algorithmus mit 20 Plaintextblöcken oder
+weniger}\cite{attackePaper} wird die Attacke hauptsächlich anhand von Prosa
+geschildert, mit zusätzlichem Bezug auf vorher aufgestellte Gleichungen. Dabei
+handelt es sich um zwei verschiedene Formen von Gleichungen, die
+unterschiedliche Arten der Implementierung mit sich ziehen.\par
+Die erste Form sind Gleichungen, wo ein $x$ gesucht wird, welches die Gleichung
+löst. Die Vorgehensweise bei der Suche nach $x$ ist dabei häufig das Prüfen von
+anderen Gleichungen, welche mit Bestandteilen von $x$ zusammenhängen. Wenn diese
+Gleichungen alle erfüllt sind, haben wir eine Lösung für $x$. Dies führt dazu,
+das nicht nur eine, sondern mehrere Lösungen für $x$ gefunden werden.\par
+Betrachten wir als Beispiel die Implementierung der Gleichungen (3.7) aus dem
+Paper\cite{attackePaper}:
+\begin{align*}
+G(x \oplus a) \oplus G(x \oplus b) = d\\
+G(x \oplus a) \oplus G(x \oplus c) = e
+\end{align*}
+Wir werden uns an dieser Stelle nur die Implementierung betrachten, welche
+verdeutlicht, wie Lösungen für ein $x$ gefunden werden. Die Theorie zu der
+Implementierung finden Sie in (3.6) des Papers\cite{attackePaper}.
+\newpage
+\begin{lstlisting}[caption={Implementierung zur Suche von $x$ in
+(3.7)\cite{attackePaper}}] 
+int getSolutionsForXFrom3_7(uint32_t aDWord, uint32_t
+bDWord, uint32_t cDWord, uint32_t dDWord, uint32_t eDWord, 
+uint32_t ** solutions) {
+
+	int solutionCount = 0;	// Anzahl an Loesungen fuer x
+	uint8_t a[4] = {0};
+	uint8_t b[4] = {0};
+	uint8_t c[4] = {0};
+	uint8_t d[4] = {0};
+	uint8_t e[4] = {0};
+
+	// Allokiere Plaetze, um die Loesungen fuer x zu speichern.
+	// Nehmen wir an, das 100% aller z1, z2 die Gleichung (3.2) erfuellen.
+	// Dann allokieren wir 2^17 * 32 = 4194304 bit = 524288 Byte = 512 KB im Heap.
+	// Damit sollten alle moeglichen Loesungen fuer x in diesem Array
+	// gespeichert werden koennen.
+
+	//2^17 hat nicht funktioniert, also 131072 ausgeschrieben...
+	uint32_t *tmpPointer = malloc(131072 * sizeof(uint32_t));	
+
+
+	// Split a to a0, a1, a2, a3 (analog fuer b, c, d, e)
+	splitToBytes(aDWord, a);
+	splitToBytes(bDWord, b);
+	splitToBytes(cDWord, c);
+	splitToBytes(dDWord, d);
+	splitToBytes(eDWord, e);
+
+	uint8_t z1 = 0;
+	uint8_t z2 = 0;
+	// Check fuer jedes z1, z2...
+	for(int i = 0; i < 256; ++i)
+	{
+		z1 = i;
+		for(int j = 0; j < 256; ++j)
+		{
+			z2 = j;
+			// Wir checken fuer beide Gleichungen in (3.7) gleichzeitig!!!
+			uint8_t alpha1 = S(z1 ^ a[0] ^ a[1], z2 ^ a[2] ^ a[3], ONE);
+			uint8_t beta1  = S(z1 ^ b[0] ^ b[1], z2 ^ b[2] ^ b[3], ONE);
+			uint8_t gamma1 = S(z1 ^ c[0] ^ c[1], z2 ^ c[2] ^ c[3], ONE);
+
+			if(((alpha1 ^ beta1) != d[1]) || ((alpha1 ^ gamma1) != e[1]))
+				continue;
+
+			uint8_t alpha2 = S(alpha1, z2 ^ a[2] ^ a[3], ZERO);
+			uint8_t beta2  = S(beta1, z2 ^ b[2] ^ b[3], ZERO);
+			uint8_t gamma2 = S(gamma1, z2 ^ c[2] ^ c[3], ZERO);
+
+			if(((alpha2 ^ beta2) != d[2]) || ((alpha2 ^ gamma2) != e[2]))
+				continue;
+
+			for(int k = 0; k < 256; ++k)
+			{
+				uint8_t x0 = k;
+				for(int l = 0; l < 256; ++l)
+				{
+					uint8_t x3 = l;
+					uint8_t s0Alpha1 = S(alpha1, x0 ^ a[0], ZERO);
+					if((s0Alpha1 ^ S(beta1, x0 ^ b[0], ZERO)) != d[0])
+						continue;
+
+					if((s0Alpha1 ^ S(gamma1, x0 ^ c[0], ZERO)) != e[0])
+						continue;
+
+					uint8_t s1Alpha2 = S(alpha2, x3 ^ a[3], ONE);
+					if((s1Alpha2 ^ S(beta2, x3 ^ b[3], ONE)) != d[3])
+						continue;
+
+					if((s1Alpha2 ^ S(gamma2, x3 ^ c[3], ONE)) != e[3])
+						continue;
+
+					// Jede Gleichung fuer z1, z2, x0, x3 ist korrekt.
+					// Errechne x1, x2 (3.4) und speichere die Loesung fuer x ab.
+					uint32_t x = bytesToUint32(x0, z1 ^ x0, z2 ^ x3, x3);
+					tmpPointer[solutionCount] = x;
+					++solutionCount;
+				}
+			}
+		}
+	}
+	*solutions = realloc(tmpPointer, solutionCount * sizeof(uint32_t));
+	return solutionCount;
+}
+\end{lstlisting}
+Wie ab Zeile 32 zu sehen ist, traversieren wir durch mehrere for-Schleifen,
+wobei jede den Wert einer Komponente ändert, welche mit $x$ zusammenhängt. Für
+diese Werte wird dann geprüft, ob sie die nötigen Gleichungen erfüllen (z.B.
+Zeile 43). Falls nicht, kann der Wert für diese Komponente verworfen werden. Ist
+die Gleichung erfüllt, kann weiter verfahren werden. Sollten alle gewählten
+Komponentenwerte ihre jeweiligen Gleichungen erfüllen, kann daraus eine Lösung
+für $x$ generiert werden (Zeile 75). Bei derartigen Funktionen werden die
+verschiedenen Lösungen für $x$ immer in einer Pointerstruktur gespeichert und
+die Anzahl der gefunden Lösungen als Return-Wert zurück gegeben.\par\bigskip
+
+Die zweite Form von Gleichungen sind sind quasi Assertions. Im Laufe der Attacke
+sollen an bestimmten Punkten geprüft werden, ob die bisher gesammelten Werte
+bestimmte Gleichungen erfüllen. Dies dient in erster Linie der Reduktion
+möglicher Lösungen. Als Beispiel betrachten wir die Assertion der Gleichung
+(5.5) aus dem Paper\cite{attackePaper}:\newpage
+\begin{lstlisting}[caption={Implementierung der Assertion für Gleichung
+(5.5)\cite{attackePaper}}]
+/**
+ * Prueft, ob die Parameter Gleichung 5.5 erfuellen:
+ *
+ * 	CiL ^ U0 ^ G(PiL ^ V0) ^ G(Di ^ W) = 0		i = 0 		(5.5)
+ *
+ * @param CiL
+ * @param trippel
+ * @param PiL
+ * @param Di
+ *
+ * @return 1, wenn erfuellt ; 0, wenn nicht
+ */
+int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL,
+ uint32_t Di)
+{
+	if(( CiL ^ trippel.U0 ^ G(PiL ^ trippel.V0) ^ G(Di ^ trippel.W)) == 0)
+		return 1;
+	return 0;
+}
+\end{lstlisting}
+Wie zu sehen, handelt sich dabei um eine einfache if-Abfrage, welche die
+Gleichung repräsentiert. In Zeile 13 wird zum ersten mal die neue Datenstruktur
+\emph{triplet} genannt. Diese ist ein für die Attacke entwickelte Struktur,
+welche auf den Gleichungen (5.3)\cite{attackePaper} beruht:\par\bigskip
+\begin{lstlisting}[caption={Datenstruktur für die Werte aus
+(5.3)\cite{attackePaper}}]
+/*
+ * Struct fuer das tripel, welches in 5.3 vorgestellt wird
+ */
+struct triplet{
+	uint32_t W;
+	uint32_t V0;
+	uint32_t U0;
+};
+\end{lstlisting}
+Vorteil dieser Datenstruktur ist eine konsistentere Speicherung von
+zusammenhängenden $W, V^0$ und $U^0$ Werten. Zusätzlich erleichtert es die
+Nachvollziehbarkeit innerhalb des Codes.\par\bigskip\newpage
+Ein weiterer wichtiger Teil der Attacke ist die Wahl der Plaintexte. Schwierig
+war dabei 64 bit Pseudo Zufallszahlen zu generieren, denn die C eigene
+Zufallszahlenfunktion \emph{rand()} liefert nur Zahlen im Bereich von 0 bis
+\emph{RAND\_MAX}, welches mindestens 32767 ist. Um nun eine 64 bit Pseudo
+Zufallszahl zu generieren wurde die \emph{rand()} Funktion vier mal aufgerufen
+und die resultierenden Werte durch bit-shift und xor Operationen zu einer 64 bit
+Zahl zusammen gefügt. Der folgende Ausschnitt ist ein Beispiel für eine solche
+Generierung:\par\bigskip
+\begin{lstlisting}[caption={Generierung einer 64 bit Pseudo Zufallszahl}]
+	P[0]   = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
+			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
+\end{lstlisting}
+Das Herzstück unserer Attacke ist die \emph{attack()} Funktion. Sie beinhaltet
+einen gesamten Durchlauf einer Attacke, vom Wählen der Plaintexte bis hin zum
+Berechnen der Schlüsselkonstanten. Die Attacke wurde bewusst nicht zu fein
+aufgesplittet, um den Weg, der in dem Paper\cite{attackePaper} beschrieben ist,
+noch nachvollziehen zu können. Wir werden an dieser Stelle nicht auf die
+detaillierte Implementierung der \emph{attack()} Funktion eingehen. In unserem
+Fallbeispiel werden wir die komplette Funktion durchlaufen und an wichtigen
+Stellen Codeausschnitte liefern, welche in Summe eine ausreichende Erläuterung
+zur Implementierung sein sollten. Doch bevor wir das Fallbeispiel
+betrachten, müssen wir zunächst noch auf die dritte Komponente der
+Software eingehen, den Verifizierer.\par\bigskip
+
+\subsection{Implementierung des Verifizierers}
+Der Verifizierer stellt in unserer Software eine Kontrollinstanz dar. Um
+sicher zu stellen, dass jede Funktion, die für \emph{FEAL} oder die Attacke
+geschrieben wurde korrekt funktioniert, wurde im Verifizierer jeweils eine
+Testfunktion hinterlegt. Jede Testfunktion prüft, ob die zu prüfende Funktion
+richtig agiert. Es kann auf verschiedene Arten geprüft werden.\par Bei den
+Funktionen, die einen Wert zurücklieferen sollen, wird vorher ein erwartetes
+Ergebnis gespeichert. Dieses wird dann mit dem Ergebnis, welches die zu prüfende
+Funktion zurück gibt verglichen. Nur wenn erwartetes und tatsächliches Ergebnis
+gleich sind, gilt die Funktion als verifiziert.\par Betrachten wir uns als
+Beispiel die Funktion $f$ aus dem Codebeispiel \ref{lst:fFunktion}. $f$ gibt für ein
+bekanntes $a$ und $b$ eine 32 bit Zahl zurück. Das heißt für unsere
+Testfunktion, das wir ein $a$ und $b$ festlegen, die $f$ Funktion anhand des
+Papers\cite{attackePaper} unabhängig von der zu testenden Implementierung
+ausführen und dieses Ergebnis als Erwartung voraussetzen. Dann wird die zu
+testende Funktion mit den Parametern $a$ und $b$ aufgerufen und dieses Ergebnis
+gespeichert. Sollten nun das erwartete und tatsächliche Ergebnis gleich sein,
+gilt $f$ als verifiziert. Codebeispiel \ref{lst:Verifizierungf} zeigt die
+Implementierung einer solchen Testfunktion:\par\bigskip
+\begin{lstlisting}[caption={Verifizierung der Funktion $f$}, label=lst:Verifizierungf] 
+int verifyFunctionF(int withOutput)
+{
+	uint32_t a = 0x12345678;
+	uint16_t b = 0xbcde;
+	uint32_t expected = 0x012e78c7;
+	uint32_t result = f(a,b);
+
+	if(withOutput)
+	{
+		printf("Test f mit a = 0x%" PRIx32", b = 0x%"PRIx32 ". Expected: 0x%"PRIx32" Result: 0x%"PRIx32"\n",
+				a, b, expected, result);
+	}
+	if(expected != result)
+		return 0;
+	return 1;
+}
+\end{lstlisting}
+Andere Funktionen können mit Hilfe bereits verifizierter Funktionen auf ihre
+Korrektheit geprüft werden. Nehmen wir als Beispiel die $decode()$ Funktion für
+das \emph{FEAL}-Verfahren. Wenn die $encode()$ Funktion bereits verifiziert ist,
+lässt sich die Richtigkeit für $decode()$ einfach zeigen. Sollte $decode()$
+Ciphertextblöcke, die von $encode()$ verschlüsselt wurden, wieder in die
+ursprünglichen Plaintexte dekodieren können, so gilt $decode()$ als verifiziert.
+Codebeispiel \ref{lst:Verifizierungdecode} zeigt die Implementierung der
+Testfunktion für $decode()$:\par\bigskip
+\begin{lstlisting}[caption={Verifizierung der Funktion $decode()$},
+label=lst:Verifizierungdecode]
+int verifyFunctionDecode(int withOutput)
+{
+	// Testschlüssel
+	uint64_t key = 0xFF00FF00FF00FF00;
+
+	// Zuerst werden die 12 16 bit subkeys errechnet
+	uint16_t *subkeys = compSubKeys(key);
+
+	// Danach werden 20 Plaintexte nach der Definition aus dem Paper
+	// erzeugt.
+	uint64_t *P = choosePlainTexts();
+
+	// Allokiere Speicher fuer die Ciphertextbloecke und wende das 
+	// FEAL-Verfahren zur Verschluesselung an.
+	uint64_t *C = malloc(20 * sizeof(uint64_t));
+	for(int i = 0; i < 20; ++i)
+	{
+		C[i] = encode(P[i], subkeys);
+	}
+
+	// Entschluessel die 20 Ciphertextbloecke und
+	// vergleiche, ob sie mit den urspruenglichen Plaintextbloecken 
+	// uebereinstimmen.
+	uint64_t decodedP[20];
+	int isEqual = 1;
+	for(int i = 0; i < 20; ++i)
+	{
+		decodedP[i] = decode(C[i], subkeys);
+		if(decodedP[i] != P[i])
+		{
+			isEqual = 0;
+		}
+		if(withOutput)
+		{
+			printf("Urspruenglicher Plaintext: 0x%" PRIx64 "\t", P[i]);
+			printf("Dekodierter Plaintext: 0x%" PRIx64"\n", decodedP[i]);
+		}
+	}
+
+	return isEqual;
+}
+\end{lstlisting}
+Auf diese Weise ist Suche nach Fehlern in der späteren fertigen Attacke um
+einiges leichter, da man bestimmte aufgerufene Funktionen anhand ihrer
+Verifizierung ausschließen kann.\par\bigskip Alle in diesem Kapitel genannten
+Maßnahmen führten letztendlich zu einem fertigen Programm, welches erfolgreich die
+Krypto-Attacke auf das FEAL-Verfahren durchführen kann. Im nächsten Kapitel wird
+nun ein Fallbeispiel einer solchen Attacke erläutert.

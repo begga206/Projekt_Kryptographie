@@ -1,8 +1,18 @@
 %%This is a very basic article template.
 %%There is just one section and two subsections.
-\documentclass[fleqn,10pt]{article}
+\documentclass{article}
 \usepackage[ansinew]{inputenc}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\include{codestyle}
 \setlength{\parindent}{0pt}
+%%=================================
+
 
 \title{Implementierung der FEAL-Differentrial-Cryptanalysis Attacke nach Murphy}
 \author{
@@ -13,6 +23,7 @@
 
 
 \begin{document}
+
 \maketitle{}
 \newpage
 \renewcommand{\contentsname}{Inhaltsverzeichnis}
@@ -40,6 +51,6 @@
 %%Ein paar abschlieﬂende Worte zu dem Projekt.
 \include{konklusion}
 
-\include{bib}
-
+\bibliographystyle{ieeetr}
+\bibliography{bib}{}
 \end{document}
