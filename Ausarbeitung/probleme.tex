@@ -1,1 +1,72 @@
 \section{Schwierigkeiten und Herausforderungen}
+Es ist klar, das ein Projekt, welches einen Angriff auf ein Krypto-Verfahren
+vorstellt, nicht trivial ist. Das führte während der Bearbeitungszeit zu einigen
+Schwierigkeiten und Herausforderungen, die nun in diesem Kapitel vorgestellt
+werden.\par\bigskip
+
+\subsection{Unbekannte Konventionen}
+Innerhalb des Papers wurden häufig Ausdrücke der folgenden Art genannt:
+\begin{align*}
+a = (a_0,a_1,a_2,a_3)
+\end{align*}
+In diesem Beispiel sollte eine 32-Bit Zahl $a$ in 4 Bytes aufgesplittet werden.
+Nun wurde jedoch ein keiner Stelle erläutert, ob $a_0$ das höchstgewichtete oder
+das niedrigstgewichtete Byte darstellt. Wir sind von letzterem ausgegangen, was
+sich als Fehler heraus stellte. Die Folge war, das zwar die Implementierung von
+\emph{FEAL-4} richtig zu funktionieren schien, jedoch die Attacke aufgrund
+falscher Zusammenhänge keine Lösungen finden konnte. Erst das Betrachten des
+folgenden Ausdruck gab Klarheit:
+\begin{align*}
+C = (C_L, C_R)
+\end{align*}
+Dieser Ausdruck beschreibt das Teilen einer 64-Bit Zahl $C$ in ihre zwei 32-Bit
+Hälften. Die Struktur ist die selbe, wie in dem Ausdruck davor mit $a$. Wir
+sehen, dass die linke, also die höher gewichtete, Hälfte von $C$ als erstes
+Element in der Klammer steht. Dies ließ uns darauf schließen, das $a_0$
+tatsächlich das höchstgewichtete Byte von $a$ sein muss.\par\bigskip
+
+\subsection{Erschwerte Fehlersuche}
+In einem Krypto-Verfahren werden die meisten Operationen auf Bit-Ebene
+\newline durchgeführt. Dort können sich schnell Fehler einschleichen, die nur schwer
+auffindbar sind. Und der Fakt, das die meisten Funktionen dem Zweck dienen ihren
+Input zu verschlüsseln, trägt bei der Fehlersuche nicht gerade positiv
+bei.\par\bigskip Abhilfe hat da der Verifizierer geleistet, der in Abschnitt
+\ref{subsection:Verifizierer} vorgestellt wurde. Denn nur so konnte garantiert werden, das alle Funktionen
+korrekt laufen und nicht die Fehlerquelle darstellen können. Tasächlich wurde
+der Verifizierer erst in der zweiten Iteration unserer Entwicklung hinzugefügt,
+nachdem wir die Suche nach einem Fehler nach mehreren Wochen aufgegeben hatten.
+Durch das Verifizieren wurde uns aber bewusst, das der Fehler nicht von uns,
+sondern dem Paper ausging.\par\bigskip
+
+\subsection{Fehler in der Quelle}
+Nach mehreren Wochen der Suche nach einem Fehler in unserer Implementierung sind
+wir auf einen Fehler innerhalb der Papers von Murphy gestoßen. In einem Teil der
+Attacke behauptet er:
+\begin{align*}
+V^{12} = V^{13}\\
+V^{14} = V^{15}
+\end{align*}
+Die zweite Behauptung war in unseren Durchläufen der Attacke nie gegeben. Um den
+Fehler zu finden, müssen wir zu erst wissen, wie $V^i$ berechnet wird:
+\begin{align*}
+V^i = M_1 \oplus G(P^i_L \oplus P^i_R \oplus N_1) = M_1 \oplus G(Q^i \oplus N_1)
+\end{align*}
+Dabei sind $M_1$ und $N_1$ Schlüsselkonstanten. Das heißt der Zusammenhang von
+$V$ Werten muss über die Plaintextblöcke erfolgen. In Gleichung (4.4) im Paper
+gibt Murphy beim Wählen der Plaintexte vor:
+\begin{align*}
+P^{15}_R = P^{15}_L \oplus Q^{13}
+\end{align*}
+Das führt wiederum zu folgenden Gleichungen für $V^{15}$:
+\begin{align*}
+V^{15}&=M_1\oplus G(P^{15}_L\oplus P^{15}_L\oplus Q^{13}\oplus N_1)\\
+&=M_1\oplus G(Q^{13}\oplus N_1)\\
+&=M_1\oplus G(P^{13}_L\oplus P^{13}_R\oplus N_1)=V^{13}
+\end{align*}
+Das bedeutet, wenn wir den Zusammenhang $V^{14} = V^{15}$ beabsichtigen, muss
+$P^{15}_R$ folgendermaßen gebildet werden:
+\begin{align*}
+P^{15}_R = P^{15}_L \oplus Q^{14}
+\end{align*}
+Nach dieser Korrektur konnte unser Implementierung auch endlich eine
+erfolgreiche Attacke durchführen.\par\bigskip

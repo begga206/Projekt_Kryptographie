@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9) (preloaded format=pdflatex 2016.7.23)  30 AUG 2016 19:30
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9) (preloaded format=pdflatex 2016.7.23)  30 AUG 2016 22:12
 entering extended mode
 **./document.tex
 (document.tex
@@ -311,7 +311,7 @@ icherung von zusam-menhangenden
  []
 
 [11] [12] [13])
-Overfull \hbox (3.30615pt too wide) in paragraph at lines 399--43
+Overfull \hbox (3.30615pt too wide) in paragraph at lines 400--43
 \OT1/cmr/m/n/10 ti-gen Pro-gramm, welches er-fol-gre-ich die Krypto-Attacke auf
  das FEAL-Verfahren
  []
@@ -325,26 +325,26 @@ Overfull \hbox (3.30615pt too wide) in paragraph at lines 399--43
 ] [16] [17] [18] [19]) [20]
 \openout2 = `probleme.aux'.
 
- (probleme.tex) [21
+ (probleme.tex [21
 
 
-]
+])
+[22]
 \openout2 = `konklusion.aux'.
 
+ (konklusion.tex) [23
 
-(konklusion.tex) [22
 
-
-] (document.bbl) [23
+] (document.bbl) [24
 
 ] (document.aux (einleitung.aux)
 (feal.aux) (attacke.aux) (implementierung.aux) (fallbeispiel.aux) (probleme.aux
 ) (konklusion.aux)) ) 
 Here is how much of TeX's memory you used:
- 6224 strings out of 493335
- 87255 string characters out of 3136680
+ 6225 strings out of 493335
+ 87280 string characters out of 3136680
  391066 words of memory out of 3000000
- 9663 multiletter control sequences out of 15000+200000
+ 9664 multiletter control sequences out of 15000+200000
  9873 words of font info for 37 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  36i,8n,58p,228b,1640s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -362,9 +362,9 @@ ogram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10.pfb><D:/Prog
 ram Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb><D:/Progra
 m Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb><D:/Program 
 Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
-Output written on document.pdf (23 pages, 258668 bytes).
+Output written on document.pdf (24 pages, 265322 bytes).
 PDF statistics:
- 132 PDF objects out of 1000 (max. 8388607)
+ 135 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
