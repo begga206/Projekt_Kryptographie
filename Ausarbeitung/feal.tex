@@ -1,1 +1,237 @@
 \section{FEAL}
+FEAL-N steht für \emph{Fast Data Encipherment Algorithm} und ist eine
+Blockchiffre, welches auf dem Feistel-Algorithmus basiert, zudem ist es ein symmetrisches 
+Kryptoverfahren. FEAL wurde im Jahre 1987 von dem Entwicklerteam Akihiro Shimizu
+und Shoji Miyaguchi des japanischen Telefonkonzerns \emph{Nippon Telegraph and
+Telephone} (NTT) veröffentlicht \cite{fealPaper}. Das Ziel der Entwicklung war
+es einen schnellen Verschlüsselungsalgorithmus zu schaffen, der sich effizient in
+Software zu implementieren ließ. Es sollte eine Alternative zu dem symmetrischen
+Verschlüsselungsalgorithmus \emph{Data Encryption Standard} (DES) darstellen,
+welches von der US-Regierung entwickelt wurde und sich damals nur leicht in spezielle
+Hardware implementieren ließ. \par\bigskip Das N in FEAL-N repräsentiert die
+Anzahl der Runden der Feistel-Blockchiffren-Operationen auf 64-Bit großen
+Blöcke bestimmt durch 64-Bit große Schlüssel. Diese Ausarbeitung befasst sich
+ausschließlich mit der Version FEAL-4.\par\bigskip Die folgenden Punkte zeigen
+auf, wann, wo und von wem die verschiedenen Versionen von FEAL erfolgreich
+gebrochen werden konnten:\par
+
+\begin{itemize}
+\item \textbf{FEAL-4} noch im gleichen Jahr 1988 auf der Eurocrypt '88 von B.
+den Boer
+\item \textbf{FEAL-4} im Jahr 1990 von Sean Murphy mit differentieller
+Kryptoanalyse unter Verwendung 20 gewählter Plaintextblöcke (Thema dieser Ausarbeitung)
+\item \textbf{FEAL-8} im Jahr 1989 von Biham und Shamir auf der Konferenz
+SECURICOM '89
+\item \textbf{FEAL-N} mit einer variablen Anzahl an Runden und \textbf{FEAL-NX}
+mit 128 Bit langen Schlüssel statt 64 Bit auf der SECURICOM '91 wieder von Biham und Shamir
+\end{itemize}
+
+\par
+FEAL hat sich aufgrund zahlreicher Sicherheitsmängel nicht durchgesetzt und
+sollte bei sicherheitskritischen Anwendungen nicht mehr verwendet werden. Es dient 
+heutzutage vor allem zum Testen neuer kryptoanalytischen Angriffsmethoden.
+\par\bigskip
+------------------------ABSATZ
+
+\subsection{Kurzer Exkurs: Feistel}
+Eine Feistel-Chiffre besteht aus einer bestimmten Anzahl an Runden, wobei
+jeweils aus dem Schlüssel ein Rundenschlüssel gebildet wird. Die untere
+Abbildung zeigt die typische Vorgehensweise des Feistel-Algorithmus.
+\par
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=8cm]{tmp/Bilder/feistel.PNG}
+\caption{Feistelchiffre}
+\end{center}
+\end{figure}
+
+\par
+Vor jeder Runde wird der Text in eine linke (\textit{L}) und eine rechte Hälfte
+(\textit{R}) eingeteilt. Dann wird auf die rechte Hälfte eine Funktion
+\textit{f} angewandt, die Teile des Schlüssels bzw. des sogenannten
+Rundenschlüssels \textit{k} zusätzlich als Parameter mitbekommt. Das Ergebnis
+wird mit XOR ($\oplus$) mit der linken Texthälfte verknüpft. Das Ergebnis ist
+dann die rechte Texthälfte für die nächste Runde. Die alte rechte Texthälfte
+wird die neue linke. Der Parameter \textit{i} steht für die Anzahl der Runden.
+Wie der Feistel-Chiffre im FEAL-4 angewandt wird, wird im folgendem Abschnitt behandelt.
+\par\bigskip
+\subsection{Funktionsweise}
+In diesem Abschnitt wird detailliert auf die Vorgehensweise des Algorithmus
+eingegangen, wie das Verschlüsselungsverfahren FEAL-4 funktioniert. Es werden
+Funktionen vorgestellt und erklärt zu welchem Zweck diese dienen. Zum groben
+Ablauf wird zunächst einmal aufgezeigt wie aus dem 64-Bit Schlüssel die Subkeys
+generiert werden, danach wie Klartexte verschlüsselt und dementsprechend wieder
+entschlüsselt werden. Dieser Abschnitt richtet sich nach dem Paper von Sean
+Murphy \cite{attackePaper}.
+\par
+Zu aller erst wird die S-Box-Funktion vorgestellt, diese ist der
+Grundbestandteil der wichtigsten Funktionen im FEAL. Diese sieht folgendermaßen aus:
+\begin{align*}
+S_i(x,y)=Rot_2((x+y+i) Mod 256)
+\end{align*}
+Der Parameter $i$ ist entweder 0 oder 1, $x$ und $y$ sind 8-Bit große binäre
+Zahlen im Bereich von 0 bis 255. $Rot_2$ entspricht einer Rotation nach links um zwei Bit. 
+Das Ergebnis/Output der S-Box-Funktion entspricht einer 8-Bit großen binären Zahl.
+\par\bigskip
+\subsubsection{Generierung der Subkeys}
+Aus dem 64-Bit Key sollen zwölf 16-Bit Subkeys entstehen, welche anschließend
+verwendet werden, um die Klartexte zu Verschlüsseln. Damit man von den Subkeys
+aus nicht so einfach auf den ursprünglichen Schlüssel schließen kann, werden die
+Bits des Keys in mehreren Stufen systematisch durcheinandergebracht.
+\par
+Als erstes wird dazu der Key in zwei Hälften aufgeteilt. Dazu werden die 32-Bit
+langen Hilfsvariablen $B$ benötigt, diese erstecken sich von $B_{-2}$ bis $B_6$.
+Dabei wird der linke Teil des Keys ($K_L$) der Variable $B_{-1}$ der rechte Teil
+des ($K_R$) Keys der Variable $B_0$ zugeordnet, die Variable $B_{-2}$ ist auf
+null gesetzt.
+\begin{align*}
+B_{-2}=0; \qquad B_{-1}=K_L; \qquad B_0=K_R
+\end{align*}
+\par
+Die linken und rechten Hälften von $B_1$ bis $B_6$ sind die gesuchten Subkeys,
+sie werden mithilfe der oben genannten Hilfsvariablen und der $f_k$-Funktion
+folgendermaßen berechnet.
+\begin{align*}
+B_i=f_k (B_{i-2},B_{i-1}\oplusB_{i-3})
+\end{align*}
+In der oberen Gleichung wird die $f_k$-Funktion verwendet, diese ist für das
+\textit{Verwürfeln} der Bits zuständig. In nachstehender Abbildung wird die
+$f_k$-Funktion veranschaulicht, weiterhin sind die dazugehörigen Gleichungen
+aufgelistet.
+\begin{align*}
+c= f_k (a,b)
+\end{align*}
+
+\par
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=8cm]{tmp/Bilder/fk_funktion.PNG}
+\caption{\textit{fk}-Funktion}
+\end{center}
+\end{figure}
+---------------------Bild an falscher Stelle
+
+\begin{gather*}
+d_1= a_0 \oplus a_1\\
+d_2= a_2 \oplus a_3\\
+c_1= S_1 (d_1,d_2 \oplus b_0)\\
+c_2= S_0 (d_2,c_1 \oplus b_1)\\
+c_0= S_0 (a_0,c_1 \oplus b_2)\\
+c_3= S_1 (a_3,c_2 \oplus b_3)\\
+\end{gather*}
+\par
+Die 32-Bit großen Bitblöcke $a$ und $b$ stellen den Input dar. Diese werden
+anschließend in vier 8-Bit große Teilblöcke $a_i$ und $b_i$ unterteilt ($i$ = 0,
+…, 3), welche mithilfe der S-Box-Funktion und der XOR-Operation miteinander
+\textit{vermischt} werden. Daraus resultieren sich die Variablen $c_i$, welche
+zusammengesetzt das 32-Bit lange Ergebnis der Funktion liefert.
+\par
+Zu guter Letzt werden die Hilfsvariablen $B_1$ bis $B_6$ aufgeteilt und als die
+endgültigen Subkeys verwendet. Aus den sechs 32-Bit langen Hilfsvariablen
+entstehen nun die zwölf 16-Bit langen Subkeys $K_0$ bis $K_{11}$.
+\begin{align*}
+K_{2(i-1)}= B_i^{L}; \qquad K_{2i-1}= B_i^{R} 
+\end{align*}
+\par
+Aus oberer Gleichung resultiert folgendes Ergebnis in Worten: die sechs gerade
+nummerierten Subkeys $K_0$ bis $K_{10}$ bilden die linken Hälften von $B$ und
+die sechs ungerade nummerierten Subkeys $K_1$ bis $K_{11}$ bilden die rechten
+Hälften von $B$.
+\par
+Im Folgendem wird der oben aufgezeigte Vorgang vereinfacht dargestellt. Dazu
+dient die untere Abbildung, die die Generierung der Subkeys visuell darstellt
+und verständlicher macht. Zu erwähnen ist, dass in folgender Abbildung zwei
+Schritte ausgelassen wurden. Die Erstellung der Subkeys $K_8$ bis $K_{11}$ muss
+man sich dazu denken.
+\par
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=8cm]{tmp/Bilder/subkeys.PNG}
+\caption{Erstellung der Subkeys vereinfacht}
+\end{center}
+\end{figure}
+\par
+-----------------Bild an falscher Stelle
+\par\bigskip
+\subsubsection{Verschlüsselung der Klartexte}
+Das Verschlüsseln eines 64-Bit großen Klartextblockes $P$ erfolgt erneut durch
+Aufteilung des Blockes in eine linke ($P_L$) und eine rechte ($P_R$) Hälfte.
+Diese werden mit den Subkeys per XOR-Operation miteinander verknüpft und als
+Initialzustand für den Feistel-Chiffre genommen. Dazu werden die Variablen $L_0$
+und $R_0$ verwendet und werden wie folgt berechnet.
+\begin{gather*}
+L_0= P_L \oplus (K_4,K_5)\\
+R_0= P_L \oplus P_R \oplus (K_4,K_5 ) \oplus (K_6,K_7 )
+\end{gather*}
+\par
+Von hier aus werden nun die vier Runden des Feistel-Algorithmus angewendet.
+Dafür wird die $f$-Funktion und die ersten vier Subkeys $K_0$ bis $K_3$ benutzt.
+Die $f$-Funktion ist der $f_k$-Funktion von der Form sehr ähnlich und wird in
+der unteren Abbildung veranschaulicht, die entsprechenden Gleichungen sind ebenfalls
+aufgeführt.
+\begin{align*}
+c=f(a,b)
+\end{align*}
+\par
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=8cm]{tmp/Bilder/f_funktion.PNG}
+\caption{\textit{f}-Funktion}
+\end{center}
+\end{figure}
+-----------------Bild an falscher Stelle
+\begin{gather*}
+d_1= a_0 \oplusa_1\oplus b_1\\
+d_2= a_2 \oplusa_3\oplus b_2\\
+c_1= S_1 (d_1,d_2)\\
+c_2= S_0 (d_2,c_1)\\
+c_0= S_0 (a_0,c_1)\\
+c_3= S_1 (a_3,c_2)\\
+\end{gather*}
+\par
+Die Gleichung für den Durchlauf der vier Feistel-Runden sieht wie folgt aus, für
+$i$=0,1,2,3 :
+\begin{gather*}
+L_i= R_{i-1}\\
+R_i= L_{i-1} \oplus f(R_{i-1},K_{i-1})
+\end{gather*}
+\par
+Die daraus resultierenden Ergebnisse des Feistel-Algorithmus $L_4$ und $R_4$
+werden abschließend mit den letzten vier Subkeys $K_8$ bis $K_{11}$ per XOR
+miteinander verknüpft und den Variablen $C_L$ und $C_R$ zugewiesen.
+\par
+\begin{gather*}
+C_L= R_4 \oplus (K_8,K_9)\\
+C_R= R_4 \oplus L_4 \oplus (K_{10},K_{11})
+\end{gather*}
+\par
+Daraus ergibt sich zu guter Letzt der verschlüsselte Ciphertextblock $C$ mit
+\begin{align*}
+C=(C_L,C_R).
+\end{align*}
+\par
+Auf die gleiche Weise können wir, wenn wir den Schlüssel kennen, jede
+verschlüsselte Nachricht dekodieren, indem die oben beschriebene Vorgehensweise
+einfach in umgekehrter Reihenfolge angewendet wird. Die unteren Abbildungen
+vereinfachen die oben im Detail beschriebene Vorgehensweise des Verschlüsselns
+und veranschaulichen als Gegenstück den Vorgang des Entschlüsselns.
+\par
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=10cm]{tmp/Bilder/encode.PNG}
+\caption{Encode vereinfacht}
+\end{center}
+\end{figure}
+-----------------Bild an falscher Stelle
+\par
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=10cm]{tmp/Bilder/decode.PNG}
+\caption{Decode vereinfacht}
+\end{center}
+\end{figure}
+-----------------Bild an falscher Stelle
+\par

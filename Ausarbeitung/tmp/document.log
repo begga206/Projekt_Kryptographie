@@ -1,0 +1,568 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9) (preloaded format=pdflatex 2016.7.26)  31 AUG 2016 19:22
+entering extended mode
+**./document.tex
+(document.tex
+LaTeX2e <2016/03/31> patch level 1
+Babel <3.9r> and hyphenation patterns for 75 language(s) loaded.
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\article.cls"
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\size10.clo"
+File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\inputenc.sty"
+Package: inputenc 2015/03/17 v1.2c Input encoding file
+\inpenc@prehook=\toks14
+\inpenc@posthook=\toks15
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\ansinew.def"
+File: ansinew.def 2015/03/17 v1.2c Input encoding file
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\listings\listings.sty"
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\keyval.sty"
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks16
+)
+\lst@mode=\count87
+\lst@gtempboxa=\box26
+\lst@token=\toks17
+\lst@length=\count88
+\lst@currlwidth=\dimen103
+\lst@column=\count89
+\lst@pos=\count90
+\lst@lostspace=\dimen104
+\lst@width=\dimen105
+\lst@newlines=\count91
+\lst@lineno=\count92
+\lst@maxwidth=\dimen106
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\listings\lstmisc.sty"
+File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
+\c@lstnumber=\count93
+\lst@skipnumbers=\count94
+\lst@framebox=\box27
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\listings\listings.cfg"
+File: listings.cfg 2015/06/04 1.6 listings configuration
+))
+Package: listings 2015/06/04 1.6 (Carsten Heinz)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\caption\caption.sty"
+Package: caption 2016/02/21 v3.3-144 Customizing captions (AR)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\caption\caption3.sty"
+Package: caption3 2016/05/22 v1.7-166 caption3 kernel (AR)
+Package caption3 Info: TeX engine: e-TeX on input line 67.
+\captionmargin=\dimen107
+\captionmargin@=\dimen108
+\captionwidth=\dimen109
+\caption@tempdima=\dimen110
+\caption@indent=\dimen111
+\caption@parindent=\dimen112
+\caption@hangindent=\dimen113
+)
+\c@ContinuedFloat=\count95
+Package caption Info: listings package is loaded.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\color.sty"
+Package: color 2016/06/02 v1.1d Standard LaTeX Color (DPC)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\00miktex\color.cfg"
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package color Info: Driver file: pdftex.def on input line 147.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\pdftex-def\pdftex.def"
+File: pdftex.def 2016/06/17 v0.06h Graphics/color for pdfTeX
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\infwarerr.sty"
+Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\generic\oberdiek\ltxcmds.sty"
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count96
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\xcolor\xcolor.sty"
+Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\00miktex\color.cfg"
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+LaTeX Info: Redefining \color on input line 709.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1352.
+Package xcolor Info: Model `RGB' extended on input line 1364.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1366.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1367.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\cite\cite.sty"
+LaTeX Info: Redefining \cite on input line 302.
+LaTeX Info: Redefining \nocite on input line 332.
+Package: cite 2015/02/27  v 5.5
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsmath.sty"
+Package: amsmath 2016/03/10 v2.15b AMS math features
+\@mathmargin=\skip43
+
+For additional information on amsmath, use the `?' option.
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amstext.sty"
+Package: amstext 2000/06/29 v2.01 AMS text
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsgen.sty"
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks18
+\ex@=\dimen114
+))
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsbsy.sty"
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen115
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\amsmath\amsopn.sty"
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count97
+LaTeX Info: Redefining \frac on input line 199.
+\uproot@=\count98
+\leftroot@=\count99
+LaTeX Info: Redefining \overline on input line 297.
+\classnum@=\count100
+\DOTSCASE@=\count101
+LaTeX Info: Redefining \ldots on input line 394.
+LaTeX Info: Redefining \dots on input line 397.
+LaTeX Info: Redefining \cdots on input line 518.
+\Mathstrutbox@=\box28
+\strutbox@=\box29
+\big@size=\dimen116
+LaTeX Font Info:    Redeclaring font encoding OML on input line 634.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 635.
+\macc@depth=\count102
+\c@MaxMatrixCols=\count103
+\dotsspace@=\muskip10
+\c@parentequation=\count104
+\dspbrk@lvl=\count105
+\tag@help=\toks19
+\row@=\count106
+\column@=\count107
+\maxfields@=\count108
+\andhelp@=\toks20
+\eqnshift@=\dimen117
+\alignsep@=\dimen118
+\tagshift@=\dimen119
+\tagwidth@=\dimen120
+\totwidth@=\dimen121
+\lineht@=\dimen122
+\@envbody=\toks21
+\multlinegap=\skip44
+\multlinetaggap=\skip45
+\mathdisplay@stack=\toks22
+LaTeX Info: Redefining \[ on input line 2739.
+LaTeX Info: Redefining \] on input line 2740.
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\mathtools\mathtools.sty"
+Package: mathtools 2015/11/12 v1.18 mathematical typesetting tools
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\tools\calc.sty"
+Package: calc 2014/10/28 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count109
+\calc@Bcount=\count110
+\calc@Adimen=\dimen123
+\calc@Bdimen=\dimen124
+\calc@Askip=\skip46
+\calc@Bskip=\skip47
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count111
+\calc@Cskip=\skip48
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\mathtools\mhsetup.sty"
+Package: mhsetup 2010/01/21 v1.2a programming setup (MH)
+)
+LaTeX Info: Thecontrolsequence`\('isalreadyrobust on input line 129.
+LaTeX Info: Thecontrolsequence`\)'isalreadyrobust on input line 129.
+LaTeX Info: Thecontrolsequence`\['isalreadyrobust on input line 129.
+LaTeX Info: Thecontrolsequence`\]'isalreadyrobust on input line 129.
+\g_MT_multlinerow_int=\count112
+\l_MT_multwidth_dim=\dimen125
+\origjot=\skip49
+\l_MT_shortvdotswithinadjustabove_dim=\dimen126
+\l_MT_shortvdotswithinadjustbelow_dim=\dimen127
+\l_MT_above_intertext_sep=\dimen128
+\l_MT_below_intertext_sep=\dimen129
+\l_MT_above_shortintertext_sep=\dimen130
+\l_MT_below_shortintertext_sep=\dimen131
+)
+\@input{codestyle.aux}
+\openout2 = `codestyle.aux'.
+
+(codestyle.tex
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\listings\lstlang1.sty"
+File: lstlang1.sty 2015/06/04 1.6 listings language file
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\listings\lstmisc.sty"
+File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
+))
+(document.aux (einleitung.aux) (feal.aux) (implementierung.aux)
+(fallbeispiel.aux) (probleme.aux) (konklusion.aux))
+\openout1 = `document.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 25.
+LaTeX Font Info:    ... okay on input line 25.
+\c@lstlisting=\count113
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\context\base\supp-pdf.mkii"
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count114
+\scratchdimen=\dimen132
+\scratchbox=\box30
+\nofMPsegments=\count115
+\nofMParguments=\count116
+\everyMPshowfont=\toks23
+\MPscratchCnt=\count117
+\MPscratchDim=\dimen133
+\MPnumerator=\count118
+\makeMPintoPDFobject=\count119
+\everyMPtoPDFconversion=\toks24
+) ("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\graphicx.sty"
+Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\graphics.sty"
+Package: graphics 2016/06/02 v1.0s Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\graphics\trig.sty"
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+)
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\00miktex\graphics.cfg"
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 99.
+)
+\Gin@req@height=\dimen134
+\Gin@req@width=\dimen135
+)
+[1
+
+
+
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}] (document.toc)
+\tf@toc=\write3
+\openout3 = `document.toc'.
+
+ [2]
+\openout2 = `einleitung.aux'.
+
+
+(einleitung.tex) [3
+
+]
+\openout2 = `feal.aux'.
+
+ (feal.tex
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 19.
+
+("C:\Program Files (x86)\MiKTeX 2.9\tex\latex\base\omscmr.fd"
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 19.
+
+<tmp/Bilder/feistel.PNG, id=17, 380.92313pt x 272.51813pt>
+File: tmp/Bilder/feistel.PNG Graphic file (type png)
+
+<use tmp/Bilder/feistel.PNG>
+Package pdftex.def Info: tmp/Bilder/feistel.PNG used on input line 44.
+(pdftex.def)             Requested size: 227.62204pt x 162.84265pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[4
+
+
+]
+Overfull \hbox (13.1672pt too wide) in paragraph at lines 60--67
+\OT1/cmr/m/n/10 Sub-keys gener-iert wer-den, danach wie Klar-texte ver-schluss
+elt und de-mentsprechend
+ []
+
+[5 <./tmp/Bilder/feistel.PNG>]
+! Undefined control sequence.
+<argument>  B_i=f_k (B_{i-2},B_{i-1}\oplusB 
+                                            _{i-3}) 
+l.97 \end{align*}
+                 
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Double subscript.
+<argument>  B_i=f_k (B_{i-2},B_{i-1}\oplusB _
+                                             {i-3}) 
+l.97 \end{align*}
+                 
+I treat `x_1_2' essentially like `x_1{}_2'.
+
+! Undefined control sequence.
+<argument>  B_i=f_k (B_{i-2},B_{i-1}\oplusB 
+                                            _{i-3}) 
+l.97 \end{align*}
+                 
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Double subscript.
+<argument>  B_i=f_k (B_{i-2},B_{i-1}\oplusB _
+                                             {i-3}) 
+l.97 \end{align*}
+                 
+I treat `x_1_2' essentially like `x_1{}_2'.
+
+
+Overfull \hbox (3.01857pt too wide) in paragraph at lines 97--102
+\OT1/cmr/m/it/10 Verwurfeln \OT1/cmr/m/n/10 der Bits zustandig. In nach-ste-h
+en-der Ab-bil-dung wird die $\OML/cmm/m/it/10 f[]$\OT1/cmr/m/n/10 -Funktion
+ []
+
+<tmp/Bilder/fk_funktion.PNG, id=30, 411.78844pt x 435.12563pt>
+File: tmp/Bilder/fk_funktion.PNG Graphic file (type png)
+
+<use tmp/Bilder/fk_funktion.PNG>
+Package pdftex.def Info: tmp/Bilder/fk_funktion.PNG used on input line 109.
+(pdftex.def)             Requested size: 227.62204pt x 240.52158pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (13.69853pt too wide) in paragraph at lines 130--133
+[][]\OT1/cmr/m/n/10 Zu guter Letzt wer-den die Hil-fs-vari-ablen $\OML/cmm/m/it
+/10 B[]$ \OT1/cmr/m/n/10 bis $\OML/cmm/m/it/10 B[]$ \OT1/cmr/m/n/10 aufgeteilt 
+und als die endgultigen
+ []
+
+[6] <tmp/Bilder/subkeys.PNG, id=35, 289.83281pt x 496.85625pt>
+File: tmp/Bilder/subkeys.PNG Graphic file (type png)
+
+<use tmp/Bilder/subkeys.PNG>
+Package pdftex.def Info: tmp/Bilder/subkeys.PNG used on input line 151.
+(pdftex.def)             Requested size: 227.62204pt x 390.20738pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[7 <./tmp/Bilder/fk_funktion.PNG>]
+<tmp/Bilder/f_funktion.PNG, id=41, 591.71063pt x 372.64218pt>
+File: tmp/Bilder/f_funktion.PNG Graphic file (type png)
+
+<use tmp/Bilder/f_funktion.PNG>
+Package pdftex.def Info: tmp/Bilder/f_funktion.PNG used on input line 181.
+(pdftex.def)             Requested size: 227.62204pt x 143.3511pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+! Undefined control sequence.
+<argument>  d_1= a_0 \oplusa 
+                             _1\oplus b_1\\ d_2= a_2 \oplusa _3\oplus b_2\\ ...
+l.193 \end{gather*}
+                   
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Double subscript.
+<argument>  d_1= a_0 \oplusa _
+                              1\oplus b_1\\ d_2= a_2 \oplusa _3\oplus b_2\\ ...
+l.193 \end{gather*}
+                   
+I treat `x_1_2' essentially like `x_1{}_2'.
+
+! Undefined control sequence.
+<argument> ...usa _1\oplus b_1\\ d_2= a_2 \oplusa 
+                                                  _3\oplus b_2\\ c_1= S_1 (d...
+l.193 \end{gather*}
+                   
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Double subscript.
+<argument> ...sa _1\oplus b_1\\ d_2= a_2 \oplusa _
+                                                  3\oplus b_2\\ c_1= S_1 (d_...
+l.193 \end{gather*}
+                   
+I treat `x_1_2' essentially like `x_1{}_2'.
+
+! Undefined control sequence.
+<argument>  d_1= a_0 \oplusa 
+                             _1\oplus b_1\\ d_2= a_2 \oplusa _3\oplus b_2\\ ...
+l.193 \end{gather*}
+                   
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Double subscript.
+<argument>  d_1= a_0 \oplusa _
+                              1\oplus b_1\\ d_2= a_2 \oplusa _3\oplus b_2\\ ...
+l.193 \end{gather*}
+                   
+I treat `x_1_2' essentially like `x_1{}_2'.
+
+! Undefined control sequence.
+<argument> ...usa _1\oplus b_1\\ d_2= a_2 \oplusa 
+                                                  _3\oplus b_2\\ c_1= S_1 (d...
+l.193 \end{gather*}
+                   
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Double subscript.
+<argument> ...sa _1\oplus b_1\\ d_2= a_2 \oplusa _
+                                                  3\oplus b_2\\ c_1= S_1 (d_...
+l.193 \end{gather*}
+                   
+I treat `x_1_2' essentially like `x_1{}_2'.
+
+<tmp/Bilder/encode.PNG, id=42, 322.95656pt x 430.60875pt>
+File: tmp/Bilder/encode.PNG Graphic file (type png)
+
+<use tmp/Bilder/encode.PNG>
+Package pdftex.def Info: tmp/Bilder/encode.PNG used on input line 224.
+(pdftex.def)             Requested size: 284.52756pt x 379.39023pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<tmp/Bilder/decode.PNG, id=43, 311.66437pt x 429.85594pt>
+File: tmp/Bilder/decode.PNG Graphic file (type png)
+
+<use tmp/Bilder/decode.PNG>
+Package pdftex.def Info: tmp/Bilder/decode.PNG used on input line 232.
+(pdftex.def)             Requested size: 284.52756pt x 392.43541pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+) [8] [9 <./tmp/Bilder/subkeys.PNG>] [10 <./tmp/Bilder/f_funktion.PNG>]
+[11 <./tmp/Bilder/encode.PNG>] [12 <./tmp/Bilder/decode.PNG>]
+\openout2 = `implementierung.aux'.
+
+
+(implementierung.tex [13
+
+
+]
+LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <8> not available
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 85.
+ [14] [15] [16] [17]
+Overfull \hbox (34.8062pt too wide) in paragraph at lines 281--283
+[]\OT1/cmr/m/n/10 Vorteil dieser Daten-struk-tur ist eine kon-sis-ten-tere Spe-
+icherung von zusam-menhangenden
+ []
+
+[18] [19] [20])
+Overfull \hbox (3.30615pt too wide) in paragraph at lines 400--44
+\OT1/cmr/m/n/10 ti-gen Pro-gramm, welches er-fol-gre-ich die Krypto-Attacke auf
+ das FEAL-Verfahren
+ []
+
+[21]
+\openout2 = `fallbeispiel.aux'.
+
+ (fallbeispiel.tex [22
+
+
+] [23] [24] [25] [26]) [27]
+\openout2 = `probleme.aux'.
+
+ (probleme.tex [28
+
+
+])
+[29]
+\openout2 = `konklusion.aux'.
+
+ (konklusion.tex) [30
+
+
+] (document.lof)
+\tf@lof=\write4
+\openout4 = `document.lof'.
+
+ (document.bbl) [31
+
+] (document.aux
+(einleitung.aux) (feal.aux) (implementierung.aux) (fallbeispiel.aux)
+(probleme.aux) (konklusion.aux)) ) 
+Here is how much of TeX's memory you used:
+ 6277 strings out of 493335
+ 88374 string characters out of 3136680
+ 391066 words of memory out of 3000000
+ 9709 multiletter control sequences out of 15000+200000
+ 9873 words of font info for 37 fonts, out of 3000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 36i,8n,58p,228b,1640s stack positions out of 5000i,500n,10000p,200000b,50000s
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type
+1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/
+public/amsfonts/cm/cmbx12.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/pu
+blic/amsfonts/cm/cmitt10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/pub
+lic/amsfonts/cm/cmmi10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/publi
+c/amsfonts/cm/cmmi7.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/a
+msfonts/cm/cmr10.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsf
+onts/cm/cmr12.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfont
+s/cm/cmr17.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/c
+m/cmr5.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cm
+r7.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy10
+.pfb><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy7.pf
+b><C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+<C:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C
+:/Program Files (x86)/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt8.pfb>
+Output written on document.pdf (31 pages, 437127 bytes).
+PDF statistics:
+ 175 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 31 words of extra memory for PDF output out of 10000 (max. 10000000)
+
