@@ -7,13 +7,13 @@ Code-Ausschnitts der $attack()$ Funktion erläutert. Zusätzlich werden noch die
 bis zu diesen Zeitpunkt wichtigen gesammelten Komponenten zur
 Schlüsselkonstantenerzeugung aufgelistet.\par\bigskip
 Bevor die Attacke starten kann, müssen zunächst alle dafür benötigten
-Bestandteile gewählt werden. Zuerst muss ein 64 bit Schlüssel gewählt
+Bestandteile gewählt werden. Zuerst muss ein 64-Bit Schlüssel gewählt
 werden:\par
 \begin{lstlisting}[caption={Wahl des Schlüssels}]
 // Testschlüssel
 uint64_t key = 0xFF00FF00FF00FF00;
 \end{lstlisting}
-Danach wird aus dem Schlüssel die 12 16 bit Subschlüssel generiert:\par
+Danach wird aus dem Schlüssel die 12 16-Bit Subschlüssel generiert:\par
 \begin{lstlisting}[caption={Generieren der Subschlüssel}]
 // Zuerst werden die 12 16 bit subkeys errechnet
 uint16_t *subkeys = compSubKeys(key);
@@ -247,7 +247,7 @@ finden:\par
 		int M2SolutionsCount = getSolutionsForXFrom3_7(y1_0,y1_17,
 			y1_18,d,e,&M2Solutions);
 \end{lstlisting}
-Als nächstes prüfen wir für jedes mögliche $M_2$, ob die äußeren 16 bit null
+Als nächstes prüfen wir für jedes mögliche $M_2$, ob die äußeren 16 Bit null
 sind. Ist dies der Fall, errechnen wir mit dem $M_2$ Wert drei verschiedene
 Werte für $M_3$ aus. Da $M_3$ eine Konstante ist, sollten alle drei Werte
 übereinstimmen:\par
@@ -271,7 +271,7 @@ for(int j = 0; j < M2SolutionsCount; ++j)
 		continue;
 \end{lstlisting}
 Nun fehlt nur noch die Schlüsselkonstante $N_2$. Diese lässt sich mittels $W$
-und $M_3$ berechnen, wobei die äußeren 16 bit null sein sollten:\par
+und $M_3$ berechnen, wobei die äußeren 16 Bit null sein sollten:\par
 \begin{lstlisting}[caption={Berchnen von $N_2$}]
 // N2 berechnen und pruefen, ob die aeusseren 16 Bit 0 sind.
 uint32_t n2 = W ^ m3_0;

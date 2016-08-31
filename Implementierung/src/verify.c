@@ -514,7 +514,6 @@ int verifyFunctionGetLinearEncodeVariables(int withOutput)
 		variables = getLinearEncodeVariables(P[i], constants);
 		uint32_t CL = variables[Y2] ^ constants[N3];
 		uint32_t CR = variables[X2] ^ constants[M3] ^ CL;
-		//TODO: Testen auf Gleichung (5.1)
 		linearEncoded[i] = (uint64_t)(((uint64_t)CL << 32) | CR);
 		if(linearEncoded[i] != C[i])
 		{
@@ -564,7 +563,6 @@ int verifyFunctionGetLinearDecodeVariables(int withOutput)
 		variables = getLinearDecodeVariables(C[i], constants);
 		uint32_t PL = constants[M1] ^ variables[X0];
 		uint32_t PR = variables[Y0] ^ PL ^ constants[N1];
-		//TODO: Testen auf Gleichung (5.1)
 		decodedP[i] = decode(C[i], subkeys);
 		linearDecodedP[i] = (uint64_t)(((uint64_t)PL << 32) | PR);
 		if(linearDecodedP[i] != P[i])

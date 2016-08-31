@@ -5,8 +5,8 @@
  *      Author: LukasB
  */
 
-#ifndef HEADER_TESTS_H_
-#define HEADER_TESTS_H_
+#ifndef HEADER_UTIL_H_
+#define HEADER_UTIL_H_
 
 #include <stdio.h>
 #include <time.h>
@@ -15,10 +15,6 @@
 
 
 char *time_stamp();
-
 uint32_t getRandomUint32();
 
-void testGetSolutionsForXFrom3_7();
-void newAttack();
-void testForStructPointer();
-#endif /* HEADER_TESTS_H_ */
+#endif /* HEADER_UTIL_H_ */

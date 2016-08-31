@@ -1,7 +1,7 @@
 \section{Implementierung}
-Im folgenden Abschnitt werden wir sowohl auf die Implementierung des FEAL-4
-Verfahren, als auch auf die der Attacke eingehen. Als Programmiersprache
-wurde C gewählt, da ein kompiliertes Programm eine höhere Performanz
+Im folgenden Abschnitt werden wir sowohl auf die Implementierung des
+\emph{FEAL-4} Verfahren, als auch auf die der Attacke eingehen. Als
+Programmiersprache wurde C gewählt, da ein kompiliertes Programm eine höhere Performanz
 besitzt als zum Beispiel ein Java Programm, welches über einen Interpreter
 läuft.\par
 Die Software wurde in drei Teilkomponenten unterteilt. Einmal die
@@ -22,13 +22,13 @@ der Übergang von der Theorie in die Implementierung verhältnisweise einfach. Um
 den Bezug auf die mathematischen Funktionen nicht zu verlieren, wurde die
 Mehrzahl der Variablennamen eins zu eins übertragen. Ausnahmen waren zum
 Beispiel die Bytevariablen eines gesplitteten Doppelwortes. Nehmen wir an eine
-32 bit Zahl hätte den Variablennamen \textit{a}. So haben in dem Paper die 4
+32-Bit Zahl hätte den Variablennamen \textit{a}. So haben in dem Paper die 4
 Teilbytes von \textit{a} einen zusätzlichen fortlaufenden Index, also
-\textit{a0, a1, a2, a3}. Unsere Implementierung realisiert eine gesplittete 32
-bit Zahl als Byte-Array der Länge 4 und behält dabei den Variablennamen aus dem
-Paper. Damit ähnelt ein Zugriff auf den entsprechenden Index im Array (z.B.
+\textit{a0, a1, a2, a3}. Unsere Implementierung realisiert eine gesplittete
+32-Bit Zahl als Byte-Array der Länge 4 und behält dabei den Variablennamen
+aus dem Paper. Damit ähnelt ein Zugriff auf den entsprechenden Index im Array (z.B.
 \textit{a[1]}) dem aus dem Paper (\textit{a1}). Damit sich der Namensbereich des
-Arrays und der initialen 32 bit Zahl nicht überschneidet, wird der initialen
+Arrays und der initialen 32-Bit Zahl nicht überschneidet, wird der initialen
 Zahl ihre Größenbezeichnung an den Variablennamen des Papers angehangen. In
 unserem Beispiel hätte die \textit{UInt32} Repräsentation von \textit{a} also
 den Variablennamen \textit{aDWord}.\par
@@ -69,7 +69,7 @@ Anhand dieser Definition lässt sich auf alle Eigenschaften unserer zu
 implementierenden Funktion schließen. Wir sehen, das $f$ die Parameter $a$ und
 $b$ besitzt, wobei $a$ definiert ist als Konkatenation von 4 Bytes und $b$ als
 eine Konkatenation von 2 Bytes. Des Weiteren können wir erkennen, das
-$f(a,b)=c$, wobei $c$ als 32 bit Zahl definiert ist. Durch diese Informationen
+$f(a,b)=c$, wobei $c$ als 32-Bit Zahl definiert ist. Durch diese Informationen
 lässt sich auf folgende Deklaration in C schließen:\par\bigskip
 \begin{lstlisting}[caption={Deklartation der Funktion $f$ in C}]
  /**
@@ -282,11 +282,11 @@ Vorteil dieser Datenstruktur ist eine konsistentere Speicherung von
 zusammenhängenden $W, V^0$ und $U^0$ Werten. Zusätzlich erleichtert es die
 Nachvollziehbarkeit innerhalb des Codes.\par\bigskip\newpage
 Ein weiterer wichtiger Teil der Attacke ist die Wahl der Plaintexte. Schwierig
-war dabei 64 bit Pseudo Zufallszahlen zu generieren, denn die C eigene
+war dabei 64-Bit Pseudo Zufallszahlen zu generieren, denn die C eigene
 Zufallszahlenfunktion \emph{rand()} liefert nur Zahlen im Bereich von 0 bis
-\emph{RAND\_MAX}, welches mindestens 32767 ist. Um nun eine 64 bit Pseudo
+\emph{RAND\_MAX}, welches mindestens 32767 ist. Um nun eine 64-Bit Pseudo
 Zufallszahl zu generieren wurde die \emph{rand()} Funktion vier mal aufgerufen
-und die resultierenden Werte durch bit-shift und xor Operationen zu einer 64 bit
+und die resultierenden Werte durch bit-shift und xor Operationen zu einer 64-Bit
 Zahl zusammen gefügt. Der folgende Ausschnitt ist ein Beispiel für eine solche
 Generierung:\par\bigskip
 \begin{lstlisting}[caption={Generierung einer 64 bit Pseudo Zufallszahl}]
@@ -317,7 +317,7 @@ Ergebnis gespeichert. Dieses wird dann mit dem Ergebnis, welches die zu prüfende
 Funktion zurück gibt verglichen. Nur wenn erwartetes und tatsächliches Ergebnis
 gleich sind, gilt die Funktion als verifiziert.\par Betrachten wir uns als
 Beispiel die Funktion $f$ aus dem Codebeispiel \ref{lst:fFunktion}. $f$ gibt für ein
-bekanntes $a$ und $b$ eine 32 bit Zahl zurück. Das heißt für unsere
+bekanntes $a$ und $b$ eine 32-Bit Zahl zurück. Das heißt für unsere
 Testfunktion, das wir ein $a$ und $b$ festlegen, die $f$ Funktion anhand des
 Papers\cite{attackePaper} unabhängig von der zu testenden Implementierung
 ausführen und dieses Ergebnis als Erwartung voraussetzen. Dann wird die zu
