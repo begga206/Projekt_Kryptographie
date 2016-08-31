@@ -1,1 +1,243 @@
 \section{Attacke nach Murphy}
+In diesem Kapitel wird die Attacke von Sean Murphy nach dem Paper \cite{attackePaper} in den
+Fokus genommen. Es wird aufgezeigt welche Schwächen Murphy in dem Verfahren
+entdeckt hat und wie er diese ausnutzt, um das Verschlüsselungsverfahren FEAL-4
+zu brechen. Murphys Vorgänger Den Boer \cite{denBoer} verwendete 10.000
+Plaintexte, um den Schlüssel zu rekonstruieren. Im Gegensatz dazu, und hier liegt die
+Besonderheit, dass sich Murphy bei der differentiellen Kryptoanalyse nur auf 20
+gewählte Plaintextblöcke beschränkte. In diesem Kapitel wird auf viele
+Gleichungen verwiesen, dabei entsprechen diese der Namenkonvention aus dem Paper
+von Murphy \cite{attackePaper}.
+\par\bigskip
+
+\subsection{Wahl der 20 Plaintexte}
+Bevor wir auf die Kryptoanalyse von Murphy eingehen, wird zunächst einmal
+erklärt auf welche Art und Weise die Plaintexte überhaupt gewählt werden. Die
+Wahl unterliegt nämlich einem systematischen Prinzip, welche nun vorgestellt wird.
+\par
+Die Wahl der 20 Plaintexte erfolgt nach bestimmten Regeln, bevor diese
+aufge- zeigt werden, müssen als erstes einige Variablen definiert werden. Dazu
+werden die linken und rechten Hälften der Plaintextblöcke ($P^{i}$) den Variablen
+$P_L^{i}$ und $P_R^{i}$ zugeordnet. Auf dieselbe Art erfolgt die Zuweisung der
+Ciphertextblöcke ($C^{i}$) mit den entsprechenden linken ($C_L^{i}$) und rechten
+($C_R^{i}$) Hälften. Dabei ist zu erwähnen, dass die Zählervariable $i$ sich von
+0 bis 19 erstreckt, damit die Anzahl auf 20 Plaintexte zustande kommt. Nun
+werden die beiden Hälften eines Plaintextes mit der XOR-Operation miteinander
+verknüpft und in eine weitere neue Variable geschrieben. Analog dazu erfolgt
+dasselbe mit den Ciphertexten. Dies sieht dann wie folgt aus:
+
+\begin{align*}
+Q^{i} = P_L^{i} \oplus P_R^{i} \qquad und \qquad D^{i} = C_L^{i} \oplus C_R^{i}
+\end{align*}
+\par
+Die Wahl der Plaintexte unterliegt folgenden Regeln:
+
+\begin{itemize}
+  \item[1.] Wähle $P^{0}$, $P^{12}$, $P^{14}$, $P^{16}$, $P^{17}$, $P^{18}$,
+  $P^{19}$ zufällig 
+  \item[2.]	Wähle $P_L^{5}$, $P_L^{6}$, $P_L^{8}$, $P_L^{9}$, $P_L^{10}$,
+$P_L^{11}$, $P_L^{13}$, $P_L^{15}$ ebenfalls zufällig, also die linken Hälften
+der jeweiligen Plaintextblöcken 
+  \item[3.] Verknüpfe folgende Plaintextblöcke mit Bitmasken unter Verwendung
+ der XOR-Operation:
+    \begin{itemize}
+		\item a)\quad $P_L^{1}$ = $P_L^{0}$ $\oplus$ 80800000 \\
+		\item b) \quad $P_L^{2}$ = $P_L^{0}$ $\oplus$ 00008080\\
+		\item c) \quad $P_L^{3}$ = $P_L^{0}$ $\oplus$ 40400000\\
+		\item d) \quad $P_L^{4}$ = $P_L^{0}$ $\oplus$ 00004040
+	\end{itemize}
+  \item[4.] Definiere für die restlichen rechten Hälften folgende Gleichungen:
+  	\begin{itemize}
+		\item a)\quad $P_R^{i}$ = $P_L^{i}$ $\oplus$ $Q^{0}$, \quad wobei $i$ = 1, …,
+		11\\
+		\item b)\quad $P_R^{13}$ = $P_L^{13}$ $\oplus$ $Q^{12}$\\
+		\item c)\quad $P_R^{15}$ = $P_L^{15}$ $\oplus$ $Q^{13}$
+	\end{itemize}
+\end{itemize}
+
+
+\par
+Somit wurden 7 ganze Plaintextblöcke und 9 Plaintext-Hälften zufällig gewählt,
+daraus ergeben sich 736 zufällige Bits von insgesamt 1280 Bits. Nun besteht die
+Aufgabe darin, die Zusammenhänge zwischen den Bits herauszufinden.
+\par
+\subsection{Neuformulierung des FEAL-4 Algorithmus}
+Um die Kryptoanalyse von Murphy zu verstehen muss noch vorher die Umformulierung
+des FEAL-4 Algorithmus erläutert werden. Dies stellt nämlich das Grundgerüst
+dar, auf welche die Attacke baut. Dabei bezieht sich Murphy auf die Methode von
+Den Boer \cite{denBoer} und definiert die $G$-Funktion, welche die lineare
+Eigenschaft der $f$-Funktion darstellt. Diese wird wie folgt definiert:
+\begin{align*}
+c = G(a)
+\end{align*}
+mit
+\begin{align*}
+d_1 &= a_0 \oplus a_1,\\
+d_2 &= a_2 \oplus a_3,\\
+c_1 &= S_1(d_1, d_2)\\
+c_2 &= S_0(d_2, c_1)\\
+c_0 &= S_0(a_0, c_1)\\
+c_3 &= S_1(a_3, c_2)
+\end{align*}
+und somit 
+\begin{align*}
+f(a, b) = G(a_0, a_1 \oplus b_1, a_2 \oplus b_2, a_3)
+\end{align*}
+
+\par
+Diese Funktion ist die Kernfunktion in der Attacke und wird sehr häufig
+verwendet.
+\par
+Bei dieser Umformulierung geht es hauptsächlich darum, eine neue Methode zu
+finden, um Nachrichten auf einem alternativen Weg zu Verschlüsseln und zu
+Entschlüsseln. Dazu werden als Alternative zum Schlüssel sechs verschiedene
+Schlüsselkonstanten definiert. Diese sehen folgendermaßen aus:
+
+\begin{align*}
+M_1 &= B_3 \oplus \theta_R(B_1)\\
+N_1 &= B_3 \oplus B_4 \oplus \theta_L(B_1)\\
+M_2 &= \theta_L(B_1) \oplus \theta_L(B_2)\\
+N_2 &= \theta_R(B_1) \oplus \theta_R(B_2)\\
+M_3 &= B_5 \oplus B_6 \oplus \theta_R(B_1)\\
+N_3 &= B_5 \oplus \theta_L(B_1)
+\end{align*}
+
+\par
+Zu beachten ist, dass die äußeren Bits von $M_2$ und $N_2$ null sind. Die
+Theta-Funktionen ($\theta$) zentrieren lediglich die jeweiligen 32-Bit
+Block-Hälften und setzen die äußeren Bits auf null:
+\begin{gather*}
+\theta_L(a_0, a_1, a_2, a_3) = (0, a_0, a_1, 0)\\
+\theta_R(a_0, a_1, a_2, a_3) = (0, a_2, a_3, 0)
+\end{gather*}
+\begin{gather*}
+\theta_L(B_i) = (0, K_{2(i-1)}, 0)\\
+\theta_R(B_i) = (0, K_{2i-1}, 0)
+\end{gather*}
+Die $\theta_L$-Funktion stellt zentriert die geraden Subkeys dar. Die
+$\theta_R$-Funktion stellt zentriert die ungeraden Subkeys dar.
+\par
+Durch diese Schlüsselkonstanten ist es nun möglich den FEAL-4 Algorithmus wie
+folgt umzuschreiben und damit Klartexte zu verschlüsseln:
+
+\begin{align*}
+X_0 &= P_L \oplus M_1 = L_0 \oplus \theta_R(B_1),\\
+Y_0 &= P_L \oplus P_R \oplus N_1 = R_0 \oplus \theta_L(B_1) = L_1 \oplus
+\theta_L(B_1),\\
+X_1 &= X_0 \oplus G(Y_0) = R_1 \oplus \theta_R(B_1) = L_2 \oplus
+\theta_R(B_1),\\
+Y_1 &= Y_0 \oplus G(X_1) = R_2 \oplus \theta_L(B_1) = L_3 \oplus
+\theta_L(B_1),\\
+X_2 &= X_1 \oplus G(Y_1 \oplus M_2) = R_3 \oplus \theta_R(B_1) = L_4 \oplus
+\theta_R(B_1),\\
+Y_2 &= Y_1 \oplus G(X_2 \oplus N_2) = R_4 \oplus \theta_L(B_1),\\
+C_L &= Y_2 \oplus N_3,\\
+C_R &= X_2 \oplus M_3 \oplus C_L.
+\end{align*}
+
+\par
+Wendet man die oberen Gleichungen in umgekehrter Reihenfolge an, ist es möglich
+den verschlüsselten Text wieder zu entschlüsseln. Aus den sechs
+Schlü- sselkonstanten ergeben sich insgesamt 160 unbekannte Bits. Wenn es uns
+gelingt diese unbekannten Bits auszurechnen, erweist sich uns die Möglichkeit
+jeden Ciphertext zu entziffern und ebenfalls auf den Schlüssel
+zurückzuschließen. Damit kommen wir nun im nächsten Abschnitt zur eigentlichen
+Attacke und Kryptoanalyse von Murphy.
+\par\bigskip
+\subsection{Kryptoanalyse des FEAL-4 Algorithmus}
+In diesem Abschnitt wird die Vorgehensweise der Attacke von Murphy beschrie-
+ben, um den FEAL-4 Algorithmus zu brechen. Das Ziel der Attacke ist es die sechs
+Schlüsselkonstanten $M_1$, $N_1$, $M_2$, $N_2$, $M_3$ und $N_3$ herauszufinden. 
+\par
+Zu aller erst werden die 20 Plaintexte gewählt und verschlüsselt, wie im
+vorherigen Abschnitt beschrieben. Damit entstehen die Plain- und
+Ciphertextblöcke $P^{i}$ und $C^{i}$, sowie $Q^{i}$ und $D^{i}$. Diese sind notwendig für
+das weitere Verfahren.
+\par
+Um die dazugehörigen Bits in Zusammenhang zu bringen formuliert Murphy aus (2.7)
+neue Gleichungen, und zwar (5.1) und die daraus folgende Gleichung (5.2). Hier
+wurde von $Y_1$ ausgegangen und die Werte nach und nach mathematisch eingesetzt.
+So entsteht aus den Gleichungen 
+\begin{align*}
+Y_1 = Y_0 \oplus G(X_1), X_1 = X_0 \oplus G(Y_0) und X_0 = P_L \oplus M_1
+\end{align*}
+Die folgende
+\begin{align*}
+Y_1 = Y_0 \oplus G(X_1) = Y_0 \oplus G(X_0 \oplus G(Y_0)) = Y_0 \oplus G(P_L
+\oplus M_1 \oplus G(Y_0)) \ldots
+\end{align*}
+\par
+Da diese Gleichungen (5.1) und die Gleichung (5.2) sehr umfangreich sind werden
+sie an dieser Stelle nicht aufgelistet, sowie die anderen Gleichungen aus dem
+Paper von Murphy. Um genauere Details zu erhalten, empfiehlt es sich im Paper
+nachzuschlagen \cite{attackePaper}. Es soll lediglich das Prinzip verstanden
+werden, dass Murphy die Werte aus (2.7) und (2.6) in Zusammenhang mit den Ciphertextblöcken bringt.
+Aus der Gleichung (5.2) schließt er die Gleichungen für die Werte $U^{i}$, $V^{i}$
+und $W$.
+Diese bezeichnet er als Triple und sind essenziell zur weiteren Vorgehensweise.
+
+\begin{align*}
+U^{i} &= Y_0^{i} \oplus N_3\\
+V^{i} &= M_1 \oplus G(Y_0^{i})\\
+W &= M_3 \oplus N_2\\
+\end{align*}
+
+\par
+Von hier aus werden Schritt für Schritt diese Werte ausgerechnet. $W$ setzt sich
+aus den Schlüsselkonstanten $M_3$ und $N_2$ zusammen und ist daher konstant.
+Deshalb wird zu Beginn nach möglichen $W$ Werten gesucht. Aus der dritten Regel
+zur Wahl der Plaintexte (XOR mit Bitmasken) schließt Murphy auf die Gleichung (5.8)
+mithilfe der linken Hälften der Ciphertextblöcke $C_L^{0}$, $C_L^{1}$, $C_L^{2}$ und
+der $D$-Werte $D^{0}$, $D^{1}$ und $D^{2}$. Diese hat folgende Form:
+\begin{gather*}
+G(x \oplus a) \oplus G(x \oplus b) = d\\
+G(x \oplus a) \oplus G(x \oplus c) = e\\
+\end{gather*}
+Dies entspricht der Gleichung (3.7) im Paper \cite{attackePaper} und erfordert
+$2^{17}$ Berechnungen und wird zur Berechnung gleichzeitig ausgeführt. Das
+Ergebnis der Berechnungen aus Gleichung (5.8) liefert eine Menge an möglichen
+Lösungen für $W$. Um die Ergebnismenge zu reduzieren wird geprüft, ob die
+gefundenen $W$ Werte die Gleichungen (5.9) erfüllen. Diese ist der Gleichung
+(5.8) sehr ähnlich, hier werden bloß andere Ciphertextblöcke, andere $D$-Werte
+und andere Bitmasken verwendet. $W$ Werte, die die Gleichungen (5.9) nicht
+lösen, werden aussortiert. Auf diese Weise wird die resultierende Ergebnismenge
+auf bis zu zehn Lösungen für $W$ verkleinert.
+\par
+Als nächstes wird für jede gefundene Lösung für $W$ und der Gleichungen (5.10)
+nun Lösungen für $V^{0}$ gesucht. Diese Gleichung ähnelt den beiden vorherigen,
+hier werden andere $C$ und $D$-Werte benutzt und die Verwendung von Bitmasken
+entfällt. Gleichung (5.5) liefert mögliche $U^{0}$ Werte und damit hätten
+mehrere Lösungen für das Triplet ($W$, $V^{0}$, $U^{0}$). Durch die Gleichung
+(5.5) folgt, dass die ersten zwölf Werte $Y_0$ = $Q^{i} \oplus N_1$ und
+$G(Y_0)$ konstant sind, also für $i$ = 0, …, 11, folgt daraus, dass $U^{i}$ =
+$U^{0}$ und $V^{i}$ = $V^{0}$. Dies stellt die Bedingung dar, um weniger als 20 Lösungen
+für das Triplet ($W$, $V^{0}$, $U^{0}$) zu liefern.
+\par
+Murphy fährt weiter fort einzelne $U$- und $V$-Werte mit aufgestellten
+Gleichungen zu suchen bis er die Werte $U^{12}$, $U^{13}$, $U^{14}$, $U^{15}$ sowie $V^{12}$,
+$V^{13}$, $V^{14}$, $V^{15}$ findet. Damit ist es ihm möglich mit der Gleichung
+(5.13) mögliche Lösungen für die erste Schlüsselkonstante $N_1$ auszurechnen.
+Mithilfe dieser Lösungen lässt sich aus den folgenden Gleichungen auf $M_1$ und
+$N_3$ schließen:
+\begin{align*}
+Y_0 &= Q^{0} \oplus N_1\\
+M_1 &= V_0 \oplus G(Y_0)\\
+N_3 &= Y_0 \oplus U^{0}
+\end{align*}
+\par
+Anschließend werden für die $P^{0}$, $P^{17}$ und $P^{18}$ die $X_1$. und
+$Y_1$-Werte berechnet, um durch die Gleichungen (5.15) Lösungen für $M_2$
+finden. Mithilfe der Konstante $M_2$ lassen sich drei Lösungen für $M_3$ finden,
+wobei alle drei Lösungen übereinstimmen sollten. Diese genannte Bedingung und
+das Wissen, dass die äußeren 16 Bit null sind, lässt auf das richtige $M_2$
+schließen. Die letzte Konstante $N_2$ errechnet sich aus $W$ und $M_3$, zu
+beachten ist, dass die äußeren 16 Bit ebenfalls null sind. Durch die Berechnung
+aller Schlüsselkonstanten ist es nun möglich nach der neuformulierten Methode 
+alle Klartextblöcke zu Verschlüsseln und alle Ciphertextblöcke zu Entschlüsseln.
+\par
+Mit den letzten beiden Gleichungen im Paper, also Gleichung (5.16) und (5.17)
+besteht die Möglichkeit den Schlüssel zu rekonstruieren. Aufgrund des
+Zusammenhangs zwischen $M_1$, $N_1$, $M_3$, $N_3$ und den äußeren 16 Bits von
+$B_3$, $B_4$, $B_5$, $B_6$ lassen sich die In- und Outputs der $fk$-Funktion
+errechnen.
+\par

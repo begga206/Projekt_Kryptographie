@@ -5,19 +5,19 @@ Programmiersprache wurde C gewählt, da ein kompiliertes Programm eine höhere Per
 besitzt als zum Beispiel ein Java Programm, welches über einen Interpreter
 läuft.\par
 Die Software wurde in drei Teilkomponenten unterteilt. Einmal die
-FEAL Komponente, welche alle Funktionen besitzt, um die Funktionalität des
-FEAL Verfahrens bereitzustellen. Die nächste Komponente widmet sich ganz
-der Attacke, welche von Murphy beschrieben wurde. Abschließend gibt es noch
-eine Verifizierer Komponente. Diese dient zur Verfikation aller Funktionen,
-die in den beiden anderen Komponenten erstellt wurden.\par
-Bevor wir jedoch die einzelnen Komponenten uns im Detail betrachten, werden erst
+\emph{FEAL} Komponente, welche alle Funktionen besitzt, um die Funktionalität
+des \emph{FEAL} Verfahrens bereitzustellen. Die nächste Komponente widmet sich
+ganz der Attacke, welche von Murphy beschrieben wurde. Abschließend wird noch
+die Verifizierer Komponente vorgestellt. Diese dient zur Verifikation aller
+Funktionen, die in den beiden anderen Komponenten erstellt wurden.\par
+Bevor wir jedoch die einzelnen Komponenten im Detail betrachten, werden erst
 einige Grundkonventionen festgelegt. Diese dienen zur Vereinheitlichung und zum 
 besseren Nachvollziehen des Codes im Bezug auf das vorgegebene 
 Paper\cite{attackePaper}.\par\bigskip
 
 \subsection{Konventionen}
-Da Murphy in seinem Paper die meisten Funktionalitäten sowohl des FEAL, als
-auch des Attacke-Algorithmus als mathematische Funktionen dargestellt hat, ist
+Da Murphy in seinem Paper die meisten Funktionalitäten sowohl des \emph{FEAL},
+als auch des Attacke-Algorithmus als mathematische Funktionen dargestellt hat, ist
 der Übergang von der Theorie in die Implementierung verhältnisweise einfach. Um
 den Bezug auf die mathematischen Funktionen nicht zu verlieren, wurde die
 Mehrzahl der Variablennamen eins zu eins übertragen. Ausnahmen waren zum
@@ -26,7 +26,8 @@ Beispiel die Bytevariablen eines gesplitteten Doppelwortes. Nehmen wir an eine
 Teilbytes von \textit{a} einen zusätzlichen fortlaufenden Index, also
 \textit{a0, a1, a2, a3}. Unsere Implementierung realisiert eine gesplittete
 32-Bit Zahl als Byte-Array der Länge 4 und behält dabei den Variablennamen
-aus dem Paper. Damit ähnelt ein Zugriff auf den entsprechenden Index im Array (z.B.
+aus dem Paper. Dadurch ähnelt ein Zugriff auf den entsprechenden Index im Array
+(z.B.
 \textit{a[1]}) dem aus dem Paper (\textit{a1}). Damit sich der Namensbereich des
 Arrays und der initialen 32-Bit Zahl nicht überschneidet, wird der initialen
 Zahl ihre Größenbezeichnung an den Variablennamen des Papers angehangen. In
@@ -113,8 +114,7 @@ uint32_t f(uint32_t aDWord, uint16_t b)
 }
 \end{lstlisting}
 Anhand dieser Vorgehensweise wurden alle weiteren explizit ausformulierten
-Funktionen implementiert. Vorallem die Implementierung des FEAL Verfahren wurde
-durch diese Vorgehensweise sehr vereinfacht. Interessant ist nun zu betrachten,
+Funktionen implementiert. Vorallem die Implementierung des \emph{FEAL}-Verfahren wurde durch diese Vorgehensweise sehr vereinfacht. Interessant ist nun zu betrachten,
 wie die Attacke implementiert wurde.\par\bigskip
 
 \subsection{Implementierung der Attacke}
@@ -263,7 +263,7 @@ int doesSatisfy5_5(uint32_t CiL, struct triplet trippel, uint32_t PiL,
 	return 0;
 }
 \end{lstlisting}
-Wie zu sehen, handelt sich dabei um eine einfache if-Abfrage, welche die
+Wie zu sehen ist, handelt sich dabei um eine einfache if-Abfrage, welche die
 Gleichung repräsentiert. In Zeile 13 wird zum ersten mal die neue Datenstruktur
 \emph{triplet} genannt. Diese ist ein für die Attacke entwickelte Struktur,
 welche auf den Gleichungen (5.3)\cite{attackePaper} beruht:\par\bigskip
@@ -279,11 +279,11 @@ struct triplet{
 };
 \end{lstlisting}
 Vorteil dieser Datenstruktur ist eine konsistentere Speicherung von
-zusammenhängenden $W, V^0$ und $U^0$ Werten. Zusätzlich erleichtert es die
-Nachvollziehbarkeit innerhalb des Codes.\par\bigskip\newpage
+zusammen- \newline hängenden $W, V^0$ und $U^0$ Werten. Zusätzlich erleichtert
+es die Nachvollziehbar- \newline keit innerhalb des Codes.\par\bigskip\newpage
 Ein weiterer wichtiger Teil der Attacke ist die Wahl der Plaintexte. Schwierig
 war dabei 64-Bit Pseudo Zufallszahlen zu generieren, denn die C eigene
-Zufallszahlenfunktion \emph{rand()} liefert nur Zahlen im Bereich von 0 bis
+Zufalls- zahlenfunktion \emph{rand()} liefert nur Zahlen im Bereich von 0 bis
 \emph{RAND\_MAX}, welches mindestens 32767 ist. Um nun eine 64-Bit Pseudo
 Zufallszahl zu generieren wurde die \emph{rand()} Funktion vier mal aufgerufen
 und die resultierenden Werte durch bit-shift und xor Operationen zu einer 64-Bit
@@ -297,7 +297,7 @@ Das Herzstück unserer Attacke ist die \emph{attack()} Funktion. Sie beinhaltet
 einen gesamten Durchlauf einer Attacke, vom Wählen der Plaintexte bis hin zum
 Berechnen der Schlüsselkonstanten. Die Attacke wurde bewusst nicht zu fein
 aufgesplittet, um den Weg, der in dem Paper\cite{attackePaper} beschrieben ist,
-noch nachvollziehen zu können. Wir werden an dieser Stelle nicht auf die
+noch nachvoll- ziehen zu können. Wir werden an dieser Stelle nicht auf die
 detaillierte Implementierung der \emph{attack()} Funktion eingehen. In unserem
 Fallbeispiel werden wir die komplette Funktion durchlaufen und an wichtigen
 Stellen Codeausschnitte liefern, welche in Summe eine ausreichende Erläuterung
@@ -395,9 +395,9 @@ int verifyFunctionDecode(int withOutput)
 	return isEqual;
 }
 \end{lstlisting}
-Auf diese Weise ist Suche nach Fehlern in der späteren fertigen Attacke um
+Auf diese Weise ist die Suche nach Fehlern in der späteren fertigen Attacke um
 einiges leichter, da man bestimmte aufgerufene Funktionen anhand ihrer
 Verifizierung ausschließen kann.\par\bigskip Alle in diesem Kapitel genannten
 Maßnahmen führten letztendlich zu einem fertigen Programm, welches erfolgreich die
-Krypto-Attacke auf das FEAL-Verfahren durchführen kann. Im nächsten Kapitel wird
-nun ein Fallbeispiel einer solchen Attacke erläutert.
+Krypto-Attacke auf das \emph{FEAL}-Verfahren durchführen kann. Im nächsten
+Kapitel wird nun ein Fallbeispiel einer solchen Attacke erläutert.

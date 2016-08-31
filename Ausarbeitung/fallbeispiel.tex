@@ -33,11 +33,11 @@ for(int i = 0; i < 20; ++i)
 	C[i] = encode(P[i], subkeys);
 }
 \end{lstlisting}
-Da laut Definition der 19. und 20. Plaintextblock zufällig gewählt werden,
+Da laut Definition der $19.$ und $20.$ Plaintextblock zufällig gewählt werden,
 wurden beide so gewählt, dass sie konkateniert den String 'FEAL is safe!!'
 repräsentieren. Am Ende unserer Attacke versuchen wir diesen String, durch
-Entschlüsseln des 19. und 20. Ciphertextblocks mittels unserer gefundenen
-Schlüsselkonstanten, wieder zu erlangen.\par\bigskip
+Entschlüsseln des $19.$ und $20.$ Ciphertextblocks mittels unserer gefundenen
+\newline Schlüsselkonstanten, wieder zu erlangen.\par\bigskip
 Zusätzlich müssen noch die $Q$-Werte für jeden Plaintextblock und $D$-Werte für
 jeden Ciphertextblock berechnet werden. Beide Werte repräsentieren eine xor
 Operation aus der linken und rechten Hälfte des entsprechenden Textblocks. Da
@@ -61,8 +61,8 @@ genannt. Dieses Fallbeispiel soll nur dazu dienen nachvollziehen zu können, wann
 nach welchen Werten gesucht wird, um in der Attacke voran zu
 schreiten. Für tieferen Einblick in die Zusammenhänge der einzelnen
 Komponenten empfehlen wir das Lesen der Quelle\cite{attackePaper}.\par\bigskip
-Wir beginnen die Attacke mit der Suche nach möglichen $W$ Werten. Die Gleichung
-(5.8) entspricht dem Format der Gleichung (3.7). Die entsprechende Funktion kann
+Wir beginnen die Attacke mit der Suche nach möglichen $W$ Werten. Die Glei-
+chung (5.8) entspricht dem Format der Gleichung (3.7). Die entsprechende Funktion kann
 Lösungen für diese Form von Gleichungen liefern:\par
 \begin{lstlisting}[caption={Suche nach möglichen $W$ Werten}, label=lst:FindeW]
 // Finde W
@@ -272,7 +272,7 @@ for(int j = 0; j < M2SolutionsCount; ++j)
 \end{lstlisting}
 Nun fehlt nur noch die Schlüsselkonstante $N_2$. Diese lässt sich mittels $W$
 und $M_3$ berechnen, wobei die äußeren 16 Bit null sein sollten:\par
-\begin{lstlisting}[caption={Berchnen von $N_2$}]
+\begin{lstlisting}[caption={Berechnen von $N_2$}]
 // N2 berechnen und pruefen, ob die aeusseren 16 Bit 0 sind.
 uint32_t n2 = W ^ m3_0;
 
@@ -298,7 +298,7 @@ Die Laufzeit der kompletten Attacke beträgt im Schnitt etwa fünf Sekunden. In
 Murphy's Paper\cite{attackePaper} wird eine Laufzeit von bis zu zehn Stunden
 datiert. Das ist der Tatsache geschuldet, dass das Paper im Jahre 1990
 erschienen ist. Die Diskrepanz zwischen der damaligen Laufzeit mit der heutigen
-führt wieder einmal den rasanten Fortschritt im Bereich des Computerbaus
-vor.\par
+führt uns wieder einmal den rasanten Fortschritt im Bereich des Computerbaus
+vor Augen.\par
 Im nächsten Kapitel werden die Schwierigkeiten und Herausforderungen, die wir
 während des Projekts bewältigen mussten, erläutert.\par

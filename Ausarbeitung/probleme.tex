@@ -10,9 +10,9 @@ Innerhalb des Papers wurden häufig Ausdrücke der folgenden Art genannt:
 a = (a_0,a_1,a_2,a_3)
 \end{align*}
 In diesem Beispiel sollte eine 32-Bit Zahl $a$ in 4 Bytes aufgesplittet werden.
-Nun wurde jedoch ein keiner Stelle erläutert, ob $a_0$ das höchstgewichtete oder
+Nun wurde jedoch an keiner Stelle erläutert, ob $a_0$ das höchstgewichtete oder
 das niedrigstgewichtete Byte darstellt. Wir sind von letzterem ausgegangen, was
-sich als Fehler heraus stellte. Die Folge war, das zwar die Implementierung von
+sich als Fehler herausstellte. Die Folge war, das zwar die Implementierung von
 \emph{FEAL-4} richtig zu funktionieren schien, jedoch die Attacke aufgrund
 falscher Zusammenhänge keine Lösungen finden konnte. Erst das Betrachten des
 folgenden Ausdruck gab Klarheit:
@@ -29,7 +29,7 @@ tatsächlich das höchstgewichtete Byte von $a$ sein muss.\par\bigskip
 In einem Krypto-Verfahren werden die meisten Operationen auf Bit-Ebene
 \newline durchgeführt. Dort können sich schnell Fehler einschleichen, die nur schwer
 auffindbar sind. Und der Fakt, das die meisten Funktionen dem Zweck dienen ihren
-Input zu verschlüsseln, trägt bei der Fehlersuche nicht gerade positiv
+Input zu verschlüsseln, trägt der Fehlersuche nicht gerade positiv
 bei.\par\bigskip Abhilfe hat da der Verifizierer geleistet, der in Abschnitt
 \ref{subsection:Verifizierer} vorgestellt wurde. Denn nur so konnte garantiert werden, das alle Funktionen
 korrekt laufen und nicht die Fehlerquelle darstellen können. Tasächlich wurde
