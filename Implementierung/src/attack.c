@@ -58,8 +58,8 @@ uint64_t *choosePlainTexts()
 	P[19]  = ((uint64_t)rand() << 48)^ ((uint64_t)rand() << 32) ^
 			((uint32_t)rand() << 16) ^ ((uint32_t)rand());
  	*/
-	P[18] = (uint64_t)("FEAL is\0");
-	P[19] = (uint64_t)(" safe!!\0");
+	P[18] = (uint64_t)"FEAL is\0";
+	P[19] = (uint64_t)" safe!!\0";
 
 
 	// (2) Choose P5_L, 6, 7, 8, 9, 10, 11, 13, 15 randomly.
@@ -652,10 +652,7 @@ void attack()
 									calculatedKeyConstants));
 							printf("%s\n\n",linearDecode(C[19],
 									calculatedKeyConstants));
-
 							free(calculatedKeyConstants);
-
-
 						}
 						free(U);
 						free(V);
@@ -680,5 +677,8 @@ void attack()
 	free(v0Solutions);
 	//free(variables);
 	free(constants);
+	free(P);
+	free(C);
+	free(subkeys);
 }
 
